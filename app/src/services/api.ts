@@ -103,6 +103,7 @@ async function mockApiRequest<T>(
       plan: plan || 'free',
       createdAt: new Date(),
       updatedAt: new Date(),
+      paymentMethods: [],
     };
     
     const token = generateId();
