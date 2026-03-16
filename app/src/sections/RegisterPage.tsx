@@ -130,7 +130,7 @@ export function RegisterPage({ store }: RegisterPageProps) {
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                TalentDash
+                taldash
               </span>
             </div>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">

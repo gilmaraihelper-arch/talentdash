@@ -98,10 +98,10 @@ export async function testPDFExportUTF8(): Promise<void> {
   
   try {
     await exportToPDF(testJob, testCandidates, {
-      filename: 'Teste_UTF8_TalentDash.pdf',
+      filename: 'Teste_UTF8_taldash.pdf',
     });
     console.log('✅ PDF exportado com sucesso!');
-    console.log('📁 Arquivo: Teste_UTF8_TalentDash.pdf');
+    console.log('📁 Arquivo: Teste_UTF8_taldash.pdf');
   } catch (error) {
     console.error('❌ Erro ao exportar PDF:', error);
     throw error;

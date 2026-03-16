@@ -1,4 +1,4 @@
-# Lista de Melhorias - TalentDash
+# Lista de Melhorias - taldash
 
 > Análise completa do código para deixar o site 100% pronto para produção/live.
 > Data da análise: 16/03/2026

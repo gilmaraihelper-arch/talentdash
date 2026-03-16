@@ -1,4 +1,4 @@
-# 🚀 PLANO DE MELHORIAS E NOVAS CAPACIDADES - TalentDash
+# 🚀 PLANO DE MELHORIAS E NOVAS CAPACIDADES - taldash
 
 ## 📅 Timeline de Implementação
 

@@ -1,7 +1,7 @@
 {
   "name": "talentdash-api",
   "version": "1.0.0",
-  "description": "API do TalentDash - Sistema de Recrutamento e Seleção com IA",
+  "description": "API do taldash - Sistema de Recrutamento e Seleção com IA",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -21,7 +21,7 @@
     "hr",
     "talent"
   ],
-  "author": "TalentDash",
+  "author": "taldash",
   "license": "ISC",
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",

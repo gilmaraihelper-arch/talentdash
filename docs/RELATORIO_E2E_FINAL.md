@@ -1,4 +1,4 @@
-# Relatório de Testes E2E - TalentDash
+# Relatório de Testes E2E - taldash
 
 **Data:** 16/03/2026
 **Ambiente:** https://talentdash.vercel.app
@@ -136,7 +136,7 @@ Os screenshots foram salvos durante os testes no diretório:
 
 **Status Geral: APROVADO ✅**
 
-O TalentDash está funcionando corretamente para as funcionalidades críticas:
+O taldash está funcionando corretamente para as funcionalidades críticas:
 - Cadastro e Login ✅
 - Criação de Mapeamentos ✅
 - **Adição e Persistência de Candidatos (BUG-001) ✅** - BUG RESOLVIDO!

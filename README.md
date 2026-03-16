@@ -1,4 +1,4 @@
-# TalentDash - Visualização de Candidatos para Decisões Gerenciais
+# taldash - Visualização de Candidatos para Decisões Gerenciais
 
 ## 🚀 Deploy
 
@@ -8,14 +8,14 @@
 
 ## 📋 Visão Geral do Produto
 
-O **TalentDash** é uma ferramenta de **visualização e análise de candidatos** que ajuda gestores a:
+O **taldash** é uma ferramenta de **visualização e análise de candidatos** que ajuda gestores a:
 
 - **Mapear habilidades** e características dos candidatos
 - **Visualizar insights** em dashboards automáticos
 - **Comparar perfis** lado a lado
 - **Tomar decisões** baseadas em dados claros
 
-> ⚠️ **Nota:** O TalentDash é uma ferramenta de **visualização e análise**, não um sistema de gestão de recrutamento. Ele não substitui seu processo seletivo, apenas o complementa com dados visuais.
+> ⚠️ **Nota:** O taldash é uma ferramenta de **visualização e análise**, não um sistema de gestão de recrutamento. Ele não substitui seu processo seletivo, apenas o complementa com dados visuais.
 
 ---
 
@@ -76,4 +76,4 @@ MVP Visual - Produto em desenvolvimento
 
 ---
 
-**TalentDash** - Visualize candidatos. Tome decisões. 🎯
+**taldash** - Visualize candidatos. Tome decisões. 🎯

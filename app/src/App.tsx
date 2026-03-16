@@ -3,7 +3,7 @@ import { useStore } from '@/hooks/useStore';
 import { PageLoader } from '@/components/PageLoader';
 import './App.css';
 
-// TalentDash - Sistema de Recrutamento Inteligente
+// taldash - Sistema de Recrutamento Inteligente
 // MVP Visual com fluxo passo a passo
 // Otimizado com Code Splitting e Lazy Loading
 
@@ -37,7 +37,7 @@ function App() {
   switch (state.currentView) {
     case 'landing':
       return (
-        <Suspense fallback={<PageLoader message="Carregando TalentDash..." />}>
+        <Suspense fallback={<PageLoader message="Carregando taldash..." />}>
           <LandingPage store={store} />
         </Suspense>
       );

@@ -1,4 +1,4 @@
-# 🚀 Guia de Deploy - TalentDash Backend
+# 🚀 Guia de Deploy - taldash Backend
 
 ## 📋 Pré-requisitos
 

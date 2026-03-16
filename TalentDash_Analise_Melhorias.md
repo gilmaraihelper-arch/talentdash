@@ -1,4 +1,4 @@
-# TalentDash - Análise e Melhorias
+# taldash - Análise e Melhorias
 
 ## Diagnóstico Atual
 

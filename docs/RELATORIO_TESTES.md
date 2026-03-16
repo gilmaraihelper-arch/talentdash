@@ -1,4 +1,4 @@
-# Relatório de Testes E2E - TalentDash
+# Relatório de Testes E2E - taldash
 
 **Data dos Testes:** 16/03/2026  
 **URL Testada:** https://talentdash.vercel.app  
@@ -8,7 +8,7 @@
 
 ## Resumo Executivo
 
-Foram realizados testes end-to-end nos principais fluxos do TalentDash. O sistema apresenta **funcionalidades principais operacionais**, mas com **bugs críticos** que afetam a experiência do usuário e a persistência de dados.
+Foram realizados testes end-to-end nos principais fluxos do taldash. O sistema apresenta **funcionalidades principais operacionais**, mas com **bugs críticos** que afetam a experiência do usuário e a persistência de dados.
 
 ### Status Geral
 | Funcionalidade | Status | Severidade |
@@ -224,7 +224,7 @@ Foram realizados testes end-to-end nos principais fluxos do TalentDash. O sistem
 
 ## Conclusão
 
-O TalentDash apresenta uma **interface bonita e bem projetada**, com um fluxo de criação de mapeamentos funcional. No entanto, **bugs críticos na persistência de dados** (candidatos) e **problemas de sessão** impedem o uso produtivo do sistema.
+O taldash apresenta uma **interface bonita e bem projetada**, com um fluxo de criação de mapeamentos funcional. No entanto, **bugs críticos na persistência de dados** (candidatos) e **problemas de sessão** impedem o uso produtivo do sistema.
 
 **Principais Preocupações:**
 1. Funcionalidade core (gestão de candidatos) não está operacional
@@ -243,4 +243,4 @@ O TalentDash apresenta uma **interface bonita e bem projetada**, com um fluxo de
 ---
 
 *Relatório gerado por Carol - QA Engineer*  
-*TalentDash Testing - 16/03/2026*
+*taldash Testing - 16/03/2026*

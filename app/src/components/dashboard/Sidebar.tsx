@@ -22,7 +22,7 @@ export function Sidebar({ activeItem = 'dashboard', onNavigate }: SidebarProps) 
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF6B35] to-[#F7931E] flex items-center justify-center text-white font-bold text-sm">
           TD
         </div>
-        <span className="hidden lg:block ml-3 font-bold text-slate-900">TalentDash</span>
+        <span className="hidden lg:block ml-3 font-bold text-slate-900">taldash</span>
       </div>
 
       {/* Navigation */}

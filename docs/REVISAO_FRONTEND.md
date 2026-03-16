@@ -1,14 +1,14 @@
-# Relatório de Revisão de Código - TalentDash Frontend
+# Relatório de Revisão de Código - taldash Frontend
 
 **Data:** 16/03/2026  
-**Projeto:** TalentDash (React + TypeScript + Vite)  
+**Projeto:** taldash (React + TypeScript + Vite)  
 **Autor:** Alex 🎨 (Subagente Frontend)
 
 ---
 
 ## 📊 Resumo Executivo
 
-O código do TalentDash apresenta uma arquitetura funcional com boas práticas em algumas áreas, mas possui **problemas críticos de qualidade**, **bugs potenciais** e **oportunidades significativas de melhoria**. A aplicação é um MVP visual bem estruturado, mas precisa de atenção em aspectos de performance, segurança e manutenibilidade.
+O código do taldash apresenta uma arquitetura funcional com boas práticas em algumas áreas, mas possui **problemas críticos de qualidade**, **bugs potenciais** e **oportunidades significativas de melhoria**. A aplicação é um MVP visual bem estruturado, mas precisa de atenção em aspectos de performance, segurança e manutenibilidade.
 
 ### Distribuição de Problemas por Prioridade
 

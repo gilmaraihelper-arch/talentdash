@@ -1,6 +1,6 @@
-# TalentDash Backend API
+# taldash Backend API
 
-Backend RESTful API para o TalentDash - Sistema de Recrutamento Inteligente.
+Backend RESTful API para o taldash - Sistema de Recrutamento Inteligente.
 
 ## Tecnologias
 

@@ -1,4 +1,4 @@
-# 🚀 TalentDash - Resumo de Progresso
+# 🚀 taldash - Resumo de Progresso
 
 ## ✅ FASE 1 CONCLUÍDA (16/03/2026)
 

@@ -1,6 +1,6 @@
-# TalentDash API
+# taldash API
 
-API REST do TalentDash - Sistema de Recrutamento e Seleção com Inteligência Artificial.
+API REST do taldash - Sistema de Recrutamento e Seleção com Inteligência Artificial.
 
 ## Stack
 

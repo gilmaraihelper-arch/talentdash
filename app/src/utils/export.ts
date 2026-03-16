@@ -67,9 +67,9 @@ export async function exportToExcel(
   
   const wb = XLSX.utils.book_new();
   wb.Props = {
-    Title: `TalentDash - ${job.name}`,
+    Title: `taldash - ${job.name}`,
     Subject: 'Relatório de Candidatos',
-    Author: 'TalentDash',
+    Author: 'taldash',
     CreatedDate: new Date(),
   };
 
@@ -145,7 +145,7 @@ export async function exportToExcel(
   XLSX.utils.book_append_sheet(wb, ws, 'Candidatos');
 
   // Salvar arquivo
-  const fileName = filename || `TalentDash_${job.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+  const fileName = filename || `taldash_${job.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
   XLSX.writeFile(wb, fileName);
 }
 
@@ -209,7 +209,7 @@ export async function exportToPDF(
   doc.setTextColor(colors.white[0], colors.white[1], colors.white[2]);
   doc.setFontSize(22);
   doc.setFont(fontName, 'bold');
-  doc.text('TalentDash', margin, 20);
+  doc.text('taldash', margin, 20);
 
   doc.setFontSize(11);
   doc.setFont(fontName, 'normal');
@@ -469,7 +469,7 @@ export async function exportToPDF(
       doc.setFontSize(8);
       doc.setTextColor(colors.slate[0], colors.slate[1], colors.slate[2]);
       doc.text(
-        `TalentDash - ${job.name} - Página ${currentPage} de ${pageCount}`,
+        `taldash - ${job.name} - Página ${currentPage} de ${pageCount}`,
         pageWidth / 2,
         pageHeight - 10,
         { align: 'center' }
@@ -488,7 +488,7 @@ export async function exportToPDF(
     doc.setFontSize(8);
     doc.setTextColor(colors.slate[0], colors.slate[1], colors.slate[2]);
     doc.text(
-      `TalentDash - ${job.name}`,
+      `taldash - ${job.name}`,
       pageWidth / 2,
       pageHeight - 10,
       { align: 'center' }
@@ -496,7 +496,7 @@ export async function exportToPDF(
   }
 
   // Salvar
-  const fileName = options?.filename || `TalentDash_${job.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+  const fileName = options?.filename || `taldash_${job.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
   doc.save(fileName);
 }
 
@@ -506,7 +506,7 @@ export async function exportToPDF(
 
 export function generateGoogleSheetsLink(job: Job): string {
   // Criar URL do Google Sheets com título pré-definido
-  const sheetName = encodeURIComponent(`TalentDash - ${job.name}`);
+  const sheetName = encodeURIComponent(`taldash - ${job.name}`);
   return `https://docs.google.com/spreadsheets/create?usp=sheets_web&title=${sheetName}`;
 }
 
@@ -530,7 +530,7 @@ export async function generateAdvancedExcelTemplate(job: Job): Promise<void> {
     ['1. Vá para a aba "Candidatos" (última aba)'],
     ['2. Preencha os dados começando da linha 3 (após os exemplos)'],
     ['3. Para campos de LISTA/DROPDOWN, use apenas os valores permitidos (veja abaixo)'],
-    ['4. Salve e importe no TalentDash'],
+    ['4. Salve e importe no taldash'],
     [''],
     ['───────────────────────────────────────'],
     ['STATUS VÁLIDOS (coluna Status):'],
