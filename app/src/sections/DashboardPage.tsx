@@ -135,7 +135,7 @@ export function DashboardPage({ store }: DashboardPageProps) {
     const stateCandidates = getJobCandidates(job.id);
     if (stateCandidates.length > 0) return stateCandidates;
     // Fallback para demo: usa mockCandidates se o job for demo
-    return mockCandidates.filter((c) => c.jobId === job.id || job.id.startsWith('demo-'));
+    return mockCandidates.filter((c) => c.jobId === job.id || job.id.startsWith('demo-') || job.id.startsWith('demo') || job.id === 'job-1');
   }, [job, getJobCandidates, state.candidates]);
 
   if (!job) {
