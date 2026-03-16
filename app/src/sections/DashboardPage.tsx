@@ -226,22 +226,66 @@ function CandidateCard({
             )}
           </div>
           
-          {/* Campos personalizados visíveis */}
+          {/* Campos personalizados visíveis - AUMENTADO para mostrar mais info */}
           {job.customFields.filter((f: any) => f.visibility.card).length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {job.customFields
-                .filter((f: any) => f.visibility.card)
-                .slice(0, 3)
-                .map((field: any) => (
-                  <div 
-                    key={field.id} 
-                    className="px-2 py-1 rounded-md text-xs flex items-center gap-1"
-                    style={{ backgroundColor: theme.light, color: theme.primary }}
-                  >
-                    <span className="font-medium">{field.name}:</span>
-                    <FieldRenderer field={field} value={candidate.customFields[field.id]} size="sm" />
-                  </div>
-                ))}
+            <div className="mt-3 space-y-2">
+              {/* Campos principais - até 4 */}
+              <div className="flex flex-wrap gap-2">
+                {job.customFields
+                  .filter((f: any) => f.visibility.card)
+                  .slice(0, 4)
+                  .map((field: any) => {
+                    const value = candidate.customFields[field.id];
+                    // Destacar campos booleanos (Sim/Não) e ratings
+                    const isBoolean = field.type === 'boolean';
+                    const isRating = field.type === 'rating';
+                    const isImportant = isBoolean || isRating;
+                    
+                    return (
+                      <div 
+                        key={field.id} 
+                        className={`px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 border ${isImportant ? 'shadow-sm' : ''}`}
+                        style={{ 
+                          backgroundColor: isBoolean 
+                            ? (value === 'Sim' || value === true) ? '#ECFDF5' : '#FEF2F2'
+                            : isRating 
+                              ? theme.light 
+                              : '#F8FAFC',
+                          borderColor: isBoolean
+                            ? (value === 'Sim' || value === true) ? '#10B981' : '#EF4444'
+                            : '#E2E8F0',
+                          color: isBoolean
+                            ? (value === 'Sim' || value === true) ? '#059669' : '#DC2626'
+                            : '#334155'
+                        }}
+                        title={`${field.name}: ${value || '-'}`}
+                      >
+                        <span className="font-semibold truncate max-w-[80px]">{field.name}:</span>
+                        <span className={isBoolean ? 'font-bold' : ''}>
+                          <FieldRenderer field={field} value={value} size="sm" />
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+              
+              {/* Campos extras - mais 3 em linha separada se houver */}
+              {job.customFields.filter((f: any) => f.visibility.card).length > 4 && (
+                <div className="flex flex-wrap gap-2">
+                  {job.customFields
+                    .filter((f: any) => f.visibility.card)
+                    .slice(4, 7)
+                    .map((field: any) => (
+                      <div 
+                        key={field.id} 
+                        className="px-2 py-1 rounded-md text-xs flex items-center gap-1 bg-slate-50 text-slate-600 border border-slate-200"
+                      >
+                        <span className="font-medium truncate max-w-[70px]">{field.name}:</span>
+                        <FieldRenderer field={field} value={candidate.customFields[field.id]} size="sm" />
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -337,8 +381,37 @@ export function DashboardPage({ store }: DashboardPageProps) {
       : 0;
     const conversionRate = total > 0 ? Math.round((byStatus.contratado / total) * 100) : 0;
     
-    return { total, byStatus, avgSalary, conversionRate };
-  }, [jobCandidates]);
+    // Estatísticas de customFields
+    const customFieldStats: Record<string, { count: number; avg?: number; yesCount?: number; noCount?: number }> = {};
+    
+    job?.customFields.forEach((field: any) => {
+      if (field.type === 'boolean') {
+        const yesCount = jobCandidates.filter(c => {
+          const val = c.customFields?.[field.id];
+          return val === 'Sim' || val === true || val === 'true';
+        }).length;
+        customFieldStats[field.id] = { count: total, yesCount, noCount: total - yesCount };
+      } else if (field.type === 'rating') {
+        const values = jobCandidates
+          .map(c => Number(c.customFields?.[field.id]))
+          .filter(v => !isNaN(v) && v > 0);
+        const avg = values.length > 0 
+          ? Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10
+          : 0;
+        customFieldStats[field.id] = { count: values.length, avg };
+      } else if (field.type === 'number') {
+        const values = jobCandidates
+          .map(c => Number(c.customFields?.[field.id]))
+          .filter(v => !isNaN(v));
+        const avg = values.length > 0 
+          ? Math.round(values.reduce((a, b) => a + b, 0) / values.length)
+          : 0;
+        customFieldStats[field.id] = { count: values.length, avg };
+      }
+    });
+    
+    return { total, byStatus, avgSalary, conversionRate, customFieldStats };
+  }, [jobCandidates, job?.customFields]);
 
   // Dados para gráficos
   const funnelData = useMemo(() => {
@@ -683,8 +756,8 @@ export function DashboardPage({ store }: DashboardPageProps) {
             />
           ) : (
             <div className="h-full overflow-auto px-4 lg:px-8 py-4">
-              {/* KPI Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {/* KPI Cards - Principais */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <KPICard
                   title="Total de Candidatos"
                   value={stats.total}
@@ -715,6 +788,50 @@ export function DashboardPage({ store }: DashboardPageProps) {
                   color={theme.accent}
                 />
               </div>
+
+              {/* KPI Cards - CustomFields (campos personalizados) */}
+              {job.customFields.length > 0 && (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {job.customFields
+                    .filter((f: any) => f.type === 'boolean' || f.type === 'rating')
+                    .slice(0, 4)
+                    .map((field: any) => {
+                      const fieldStat = stats.customFieldStats[field.id];
+                      if (!fieldStat) return null;
+
+                      if (field.type === 'boolean' && fieldStat.yesCount !== undefined) {
+                        const percentage = stats.total > 0 
+                          ? Math.round((fieldStat.yesCount / stats.total) * 100) 
+                          : 0;
+                        return (
+                          <KPICard
+                            key={field.id}
+                            title={field.name}
+                            value={`${fieldStat.yesCount}`}
+                            subtitle={`${percentage}% dos candidatos`}
+                            icon={Check}
+                            color={percentage > 50 ? '#10B981' : '#F59E0B'}
+                          />
+                        );
+                      }
+
+                      if (field.type === 'rating' && fieldStat.avg !== undefined) {
+                        return (
+                          <KPICard
+                            key={field.id}
+                            title={field.name}
+                            value={`⭐ ${fieldStat.avg}`}
+                            subtitle={`Média de ${fieldStat.count} avaliações`}
+                            icon={TrendingUpIcon}
+                            color={fieldStat.avg >= 4 ? '#10B981' : fieldStat.avg >= 3 ? '#F59E0B' : '#EF4444'}
+                          />
+                        );
+                      }
+
+                      return null;
+                    })}
+                </div>
+              )}
 
               {/* Charts Row */}
               <div className="grid lg:grid-cols-3 gap-4 mb-6">
