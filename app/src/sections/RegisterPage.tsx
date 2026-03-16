@@ -14,6 +14,7 @@ import {
   Sparkles,
   AlertCircle
 } from 'lucide-react';
+import { GoogleLoginButton } from '@/components/GoogleLoginButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -235,6 +236,28 @@ export function RegisterPage({ store }: RegisterPageProps) {
               </Alert>
             )}
             
+            {/* Google Login - Primeiro */}
+            <GoogleLoginButton
+              onSuccess={(token, user) => {
+                // Preencher automaticamente os dados do Google
+                if (user.name) setValue('name', user.name);
+                if (user.email) setValue('email', user.email);
+                // Opcional: criar conta automaticamente ou mostrar toast
+                console.log('Google login success:', token, user);
+              }}
+              onError={(error) => {
+                setRegisterError('Erro ao fazer login com Google: ' + error.message);
+              }}
+            />
+            
+            <div className="relative my-4">
+              <Separator />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-xs text-slate-400">
+                ou
+              </span>
+            </div>
+            
+            {/* Formulário de cadastro */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Nome completo *</label>
