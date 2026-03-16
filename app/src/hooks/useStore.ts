@@ -371,6 +371,14 @@ export function useStore() {
     }
   }, [state.selectedJob]);
 
+  // Adicionar candidatos localmente (sem API) - para modo demo
+  const addLocalCandidates = useCallback((candidates: Candidate[]) => {
+    setState(prev => ({
+      ...prev,
+      candidates: [...prev.candidates, ...candidates],
+    }));
+  }, []);
+
   // Excluir candidato
   const deleteCandidate = useCallback(async (candidateId: string) => {
     if (!state.selectedJob) return;
@@ -500,6 +508,7 @@ export function useStore() {
     // Candidates
     addCandidates,
     addCandidate,
+    addLocalCandidates,
     updateCandidate,
     deleteCandidate,
     getJobCandidates,

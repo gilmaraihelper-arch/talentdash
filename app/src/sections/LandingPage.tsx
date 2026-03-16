@@ -419,12 +419,12 @@ export function LandingPage({ store }: LandingPageProps) {
       ...candidate,
       id: `${candidate.id}-${modelId}`,
       jobId: demoJobId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }));
     
     // Adicionar candidatos diretamente ao estado do store
-    demoCandidatesWithJobId.forEach(candidate => {
-      store.state.candidates.push(candidate);
-    });
+    store.addLocalCandidates(demoCandidatesWithJobId);
     
     navigateTo('dashboard');
   };
@@ -453,11 +453,11 @@ export function LandingPage({ store }: LandingPageProps) {
       ...candidate,
       id: `${candidate.id}-${key}`,
       jobId: demoJobId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }));
     
-    demoCandidatesWithJobId.forEach(candidate => {
-      store.state.candidates.push(candidate);
-    });
+    store.addLocalCandidates(demoCandidatesWithJobId);
     navigateTo('dashboard');
   };
 
