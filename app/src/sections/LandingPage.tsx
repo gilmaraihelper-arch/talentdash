@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Check, 
   Users, 
@@ -388,6 +389,7 @@ const demoCandidates = [
 
 export function LandingPage({ store }: LandingPageProps) {
   const { navigateTo } = store;
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeModel, setActiveModel] = useState('padrao');
 
@@ -543,19 +545,19 @@ export function LandingPage({ store }: LandingPageProps) {
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
-                Contrate <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">3x mais rápido</span> com decisões baseadas em dados
+                {t('landing.hero.title')}
               </h1>
               
-              <p className="text-lg text-slate-600 max-w-xl">Mapeie habilidades, compare perfis e visualize insights em dashboards automáticos. Transforme seu processo seletivo em uma máquina de contratação eficiente.</p>
+              <p className="text-lg text-slate-600 max-w-xl">{t('landing.hero.subtitle')}</p>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" onClick={() => navigateTo('register')} className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-xl hover:shadow-2xl transition-shadow h-14 px-8">
                   <Zap className="w-5 h-5 mr-2" />
-                  Criar Conta Grátis
+                  {t('landing.hero.cta')}
                 </Button>
                 <Button variant="outline" size="lg" onClick={() => goToDemo('padrao')} className="h-14 px-8 border-2 hover:bg-slate-50">
                   <Play className="w-5 h-5 mr-2" />
-                  Ver Demo ao Vivo
+                  {t('landing.hero.models')}
                 </Button>
               </div>
 

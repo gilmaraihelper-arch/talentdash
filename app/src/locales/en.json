@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "taldash",
+    "tagline": "Smart Recruitment System",
+    "description": "Manage your recruitment processes efficiently and modernly"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "candidates": "Candidates",
+    "jobs": "Jobs",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Create account",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "company": "Company (optional)",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "googleLogin": "Sign in with Google",
+    "demoLogin": "Sign in with demo account",
+    "termsAgreement": "I agree to the Terms of Service and Privacy Policy",
+    "createAccount": "Create account"
+  },
+  "landing": {
+    "hero": {
+      "title": "Smart Recruitment System",
+      "subtitle": "Manage your recruitment processes efficiently and modernly. Find the best talents with ease.",
+      "cta": "View Live Demo",
+      "models": "View Available Models"
+    },
+    "features": {
+      "title": "Why choose taldash?",
+      "feature1": {
+        "title": "Complete Management",
+        "description": "Control the entire candidate cycle in a single platform"
+      },
+      "feature2": {
+        "title": "Intuitive Dashboard",
+        "description": "View metrics and track progress in real time"
+      },
+      "feature3": {
+        "title": "Flexible Export",
+        "description": "Export reports to Excel or PDF easily"
+      }
+    },
+    "models": {
+      "title": "Ready-to-Use Models",
+      "subtitle": "Choose a pre-configured job model and get started in minutes",
+      "viewAll": "View all models",
+      "tryNow": "Try This Model"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "totalCandidates": "Total Candidates",
+    "inInterview": "In Interview",
+    "hired": "Hired",
+    "avgSalary": "Average Salary",
+    "candidateList": "Candidate List",
+    "companyRanking": "Company Ranking"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "back": "Back"
+  }
+}

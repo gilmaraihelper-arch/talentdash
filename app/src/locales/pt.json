@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "taldash",
+    "tagline": "Sistema de Recrutamento Inteligente",
+    "description": "Gerencie seus processos seletivos de forma eficiente e moderna"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "candidates": "Candidatos",
+    "jobs": "Vagas",
+    "analytics": "Analytics",
+    "settings": "Configurações"
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Criar conta",
+    "logout": "Sair",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome completo",
+    "company": "Empresa (opcional)",
+    "forgotPassword": "Esqueceu a senha?",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "googleLogin": "Entrar com Google",
+    "demoLogin": "Entrar com conta demo",
+    "termsAgreement": "Concordo com os Termos de Serviço e Política de Privacidade",
+    "createAccount": "Criar conta"
+  },
+  "landing": {
+    "hero": {
+      "title": "Sistema de Recrutamento Inteligente",
+      "subtitle": "Gerencie seus processos seletivos de forma eficiente e moderna. Encontre os melhores talentos com facilidade.",
+      "cta": "Ver Demo ao Vivo",
+      "models": "Ver Modelos Disponíveis"
+    },
+    "features": {
+      "title": "Por que escolher o taldash?",
+      "feature1": {
+        "title": "Gerenciamento Completo",
+        "description": "Controle todo o ciclo do candidato em uma única plataforma"
+      },
+      "feature2": {
+        "title": "Dashboard Intuitivo",
+        "description": "Visualize métricas e acompanhe o progresso em tempo real"
+      },
+      "feature3": {
+        "title": "Exportação Flexível",
+        "description": "Exporte relatórios em Excel ou PDF facilmente"
+      }
+    },
+    "models": {
+      "title": "Modelos Prontos para Usar",
+      "subtitle": "Escolha um modelo de vaga pré-configurado e comece em minutos",
+      "viewAll": "Ver todos os modelos",
+      "tryNow": "Experimentar Este Modelo"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bem-vindo",
+    "totalCandidates": "Total de Candidatos",
+    "inInterview": "Em Entrevista",
+    "hired": "Contratados",
+    "avgSalary": "Média Salarial",
+    "candidateList": "Lista de Candidatos",
+    "companyRanking": "Ranking de Empresas"
+  },
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "search": "Buscar",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "back": "Voltar"
+  }
+}
