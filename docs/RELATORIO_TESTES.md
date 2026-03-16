@@ -123,8 +123,7 @@ Foram realizados testes end-to-end nos principais fluxos do TalentDash. O sistem
 - Opções de adicionar/remover widgets
 - Botões de salvar e resetar funcionam
 
-**Screenshot:**
-![Modo Edição do Dashboard](./screenshot_edicao.png)
+**Arquivo:** `screenshots/modo_edicao.png`
 
 #### Compartilhar ❌
 - **Status:** Bug
@@ -237,8 +236,9 @@ O TalentDash apresenta uma **interface bonita e bem projetada**, com um fluxo de
 ---
 
 **Arquivos de Evidência:**
-- Screenshot 1: Dashboard após criação do mapeamento
-- Screenshot 2: Modo edição do dashboard
+- `screenshots/dashboard_apos_cadastro.png` - Dashboard após criação do mapeamento
+- `screenshots/mapeamento_vazio.png` - Mapeamento vazio após tentativa de adicionar candidato
+- `screenshots/modo_edicao.png` - Modo edição do dashboard
 
 ---
 

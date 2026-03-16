@@ -193,6 +193,24 @@ async function mockApiRequest<T>(
     return db.candidates.filter(c => c.jobId === jobId) as T;
   }
   
+  // POST /jobs/{jobId}/candidates - criar candidato único
+  if (endpoint.endsWith('/candidates') && method === 'POST') {
+    const jobId = endpoint.split('/')[2];
+    
+    const newCandidate: Candidate = {
+      id: generateId(),
+      jobId,
+      ...body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    db.candidates.push(newCandidate);
+    saveMockDB(db);
+    
+    return newCandidate as T;
+  }
+  
   if (endpoint.endsWith('/candidates/bulk') && method === 'POST') {
     const jobId = endpoint.split('/')[2];
     const { candidates } = body;
