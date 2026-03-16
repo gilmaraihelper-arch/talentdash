@@ -16,34 +16,177 @@ export const setAuthToken = (token: string | null) => {
 
 export const getAuthToken = () => authToken;
 
-// API request helper
+// ==================== MOCK DATA (LOCALSTORAGE) ====================
+// Fallback para quando o backend não está disponível
+const MOCK_DB_KEY = 'talentdash_mock_db';
+
+interface MockDB {
+  users: User[];
+  jobs: Job[];
+  candidates: Candidate[];
+  payments: PaymentMethod[];
+}
+
+const getMockDB = (): MockDB => {
+  const stored = localStorage.getItem(MOCK_DB_KEY);
+  if (stored) return JSON.parse(stored);
+  return { users: [], jobs: [], candidates: [], payments: [] };
+};
+
+const saveMockDB = (db: MockDB) => {
+  localStorage.setItem(MOCK_DB_KEY, JSON.stringify(db));
+};
+
+// Generate ID
+const generateId = () => Math.random().toString(36).substring(2, 15);
+
+// ==================== API REQUEST HELPER ====================
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_URL}${endpoint}`;
   
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...((options.headers as Record<string, string>) || {}),
-  };
+  try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...((options.headers as Record<string, string>) || {}),
+    };
+    
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Erro na requisição');
+    }
+    
+    return data;
+  } catch (error) {
+    // Se falhar (backend offline), usar mock/localStorage
+    console.log('Backend offline, usando localStorage fallback');
+    return mockApiRequest<T>(endpoint, options);
+  }
+}
+
+// ==================== MOCK API (LOCALSTORAGE FALLBACK) ====================
+async function mockApiRequest<T>(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<T> {
+  await new Promise(resolve => setTimeout(resolve, 300)); // Simular delay
   
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  const db = getMockDB();
+  const method = options.method || 'GET';
+  const body = options.body ? JSON.parse(options.body as string) : {};
+  
+  // AUTH endpoints
+  if (endpoint === '/auth/register' && method === 'POST') {
+    const { email, password, name, companyName, plan } = body;
+    
+    if (db.users.find(u => u.email === email)) {
+      throw new Error('E-mail já cadastrado');
+    }
+    
+    const user: User = {
+      id: generateId(),
+      email,
+      name,
+      companyName: companyName || '',
+      plan: plan || 'free',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    const token = generateId();
+    db.users.push({ ...user, password } as any);
+    saveMockDB(db);
+    setAuthToken(token);
+    
+    return { user, token } as T;
   }
   
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-  
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(data.error || 'Erro na requisição');
+  if (endpoint === '/auth/login' && method === 'POST') {
+    const { email, password } = body;
+    const user = db.users.find(u => u.email === email && (u as any).password === password);
+    
+    if (!user) {
+      throw new Error('E-mail ou senha incorretos');
+    }
+    
+    const token = generateId();
+    setAuthToken(token);
+    
+    const { password: _, ...userWithoutPassword } = user as any;
+    return { user: userWithoutPassword, token } as T;
   }
   
-  return data;
+  if (endpoint === '/auth/me' && method === 'GET') {
+    const user = db.users[0]; // Simplificado para MVP
+    if (!user) throw new Error('Não autorizado');
+    const { password: _, ...userWithoutPassword } = user as any;
+    return userWithoutPassword as T;
+  }
+  
+  // JOBS endpoints
+  if (endpoint === '/jobs' && method === 'GET') {
+    return db.jobs as T;
+  }
+  
+  if (endpoint === '/jobs' && method === 'POST') {
+    const job: Job = {
+      id: generateId(),
+      ...body,
+      userId: db.users[0]?.id || '1',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    db.jobs.push(job);
+    saveMockDB(db);
+    return job as T;
+  }
+  
+  if (endpoint.startsWith('/jobs/') && method === 'DELETE') {
+    const id = endpoint.split('/')[2];
+    db.jobs = db.jobs.filter(j => j.id !== id);
+    db.candidates = db.candidates.filter(c => c.jobId !== id);
+    saveMockDB(db);
+    return undefined as T;
+  }
+  
+  // CANDIDATES endpoints
+  if (endpoint.endsWith('/candidates') && method === 'GET') {
+    const jobId = endpoint.split('/')[2];
+    return db.candidates.filter(c => c.jobId === jobId) as T;
+  }
+  
+  if (endpoint.endsWith('/candidates/bulk') && method === 'POST') {
+    const jobId = endpoint.split('/')[2];
+    const { candidates } = body;
+    
+    const newCandidates = candidates.map((c: any) => ({
+      ...c,
+      id: generateId(),
+      jobId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+    
+    db.candidates.push(...newCandidates);
+    saveMockDB(db);
+    
+    return { message: 'Candidatos adicionados', candidates: newCandidates } as T;
+  }
+  
+  // Default: retornar array vazio ou objeto vazio
+  return [] as T;
 }
 
 // ==================== AUTH ====================
