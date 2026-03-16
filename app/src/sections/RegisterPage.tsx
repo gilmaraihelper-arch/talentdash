@@ -55,9 +55,9 @@ const plans: { key: PlanType; name: string; price: string; description: string; 
 ];
 
 export function RegisterPage({ store }: RegisterPageProps) {
-  const { navigateTo, register } = store;
-  const [step, setStep] = useState<'plan' | 'form'>('plan');
-  const [selectedPlan, setSelectedPlan] = useState<PlanType>('pro');
+  const { navigateTo, register, login } = store;
+  const [step, setStep] = useState<'plan' | 'form'>('form'); // Começa direto no formulário
+  const [selectedPlan, setSelectedPlan] = useState<PlanType>('free'); // Plano free por padrão
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -239,11 +239,8 @@ export function RegisterPage({ store }: RegisterPageProps) {
             {/* Google Login - Primeiro */}
             <GoogleLoginButton
               onSuccess={(token, user) => {
-                // Preencher automaticamente os dados do Google
-                if (user.name) setValue('name', user.name);
-                if (user.email) setValue('email', user.email);
-                // Opcional: criar conta automaticamente ou mostrar toast
-                console.log('Google login success:', token, user);
+                // Login direto com Google - não precisa criar senha
+                login(user.email, 'google-oauth');
               }}
               onError={(error) => {
                 setRegisterError('Erro ao fazer login com Google: ' + error.message);
