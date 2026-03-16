@@ -279,22 +279,25 @@ export function CreateJobPage({ store }: CreateJobPageProps) {
     setCustomFields(customFields.filter(f => f.id !== id));
   };
   
-  const handleCreateJob = () => {
+  const handleCreateJob = async () => {
     if (!jobInfo.jobName.trim()) return;
-    
+
     setIsCreating(true);
-    
-    // Simula um pequeno delay para mostrar loading
-    setTimeout(() => {
-      createJob(jobInfo.jobName.trim(), selectedPlan, customFields, {
+
+    try {
+      // Aguarda o job ser criado antes de navegar
+      await createJob(jobInfo.jobName.trim(), selectedPlan, customFields, {
         template: selectedTemplate,
         dashboardModel: selectedDashboardModel,
         colorTheme: selectedColorTheme,
         description: jobInfo.jobDescription,
       });
       navigateTo('data-structure');
+    } catch (error) {
+      console.error('Erro ao criar mapeamento:', error);
+    } finally {
       setIsCreating(false);
-    }, 500);
+    }
   };
   
   const getFieldTypeIcon = (type: FieldType) => {
