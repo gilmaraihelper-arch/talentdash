@@ -97,8 +97,14 @@ export function RegisterPage({ store }: RegisterPageProps) {
         companyName: data.companyName,
         plan: selectedPlan,
       });
-    } catch (error) {
-      setRegisterError('Erro ao criar conta. Tente novamente.');
+    } catch (error: any) {
+      const errorMessage = error?.message || '';
+      
+      if (errorMessage.includes('já cadastrado') || errorMessage.includes('already exists')) {
+        setRegisterError('Este e-mail já está cadastrado. Clique em "Entrar" abaixo para fazer login.');
+      } else {
+        setRegisterError('Erro ao criar conta. Tente novamente.');
+      }
     } finally {
       setIsLoading(false);
     }
