@@ -211,13 +211,13 @@ export function useStore() {
   }, []);
 
   // ============ GOOGLE OAUTH LOGIN ============
-  const googleLogin = useCallback(async (accessToken: string) => {
+  const googleLogin = useCallback(async (accessToken: string, userInfo?: any) => {
     try {
       setIsLoading(true);
       setError(null);
       
       // Chamar o endpoint do backend para validar o token e fazer login
-      const { user, token } = await authAPI.googleLogin(accessToken);
+      const { user, token } = await authAPI.googleLogin(accessToken, userInfo);
       
       // Salvar token no localStorage
       localStorage.setItem('talentdash_token', token);

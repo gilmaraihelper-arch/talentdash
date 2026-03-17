@@ -145,6 +145,7 @@ export interface User {
   email: string;
   name: string;
   companyName?: string;
+  companyLogo?: string;
   avatar?: string;
   plan: PlanType;
   planExpiryDate?: Date;

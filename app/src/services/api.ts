@@ -168,21 +168,22 @@ async function mockApiRequest<T>(
   
   // GOOGLE LOGIN - Mock endpoint
   if (endpoint === '/auth/google' && method === 'POST') {
-    const { accessToken } = body;
+    const { accessToken, userInfo } = body;
     
     // Em modo mock, validamos o accessToken e criamos/login usuário
-    // O accessToken do Google tem formato específico, mas em mock aceitamos qualquer um
     if (!accessToken) {
       throw new Error('Token do Google não fornecido');
     }
     
-    // Extrair info do token JWT (simulado) ou usar defaults
-    // Em produção real, validaríamos o token com Google
-    const email = `google_user_${generateId().slice(0, 8)}@gmail.com`;
-    const name = 'Usuário Google';
+    // Usar dados reais do Google ou gerar consistentemente baseado no token
+    // Em produção, o backend validaria o token com Google
+    const googleId = accessToken.slice(-20);
+    const email = userInfo?.email || `user_${googleId.slice(0, 8)}@gmail.com`;
+    const name = userInfo?.name || userInfo?.given_name || 'Usuário';
+    const avatar = userInfo?.picture || '';
     
-    // Verificar se usuário já existe (por email simulado ou criar novo)
-    const existingUser = db.users.find(u => u.email === email);
+    // Verificar se usuário já existe pelo email ou googleId
+    const existingUser = db.users.find(u => u.email === email || (u as any).googleId === googleId);
     
     let user: User;
     
@@ -192,18 +193,27 @@ async function mockApiRequest<T>(
         id: generateId(),
         email,
         name,
+        avatar,
         companyName: '',
         plan: 'free',
         role: 'USER',
         createdAt: new Date(),
         updatedAt: new Date(),
         paymentMethods: [],
-        googleId: accessToken.slice(-20), // Simular ID do Google
+        googleId: googleId,
       } as User;
       db.users.push(user);
       saveMockDB(db);
     } else {
+      // Atualizar dados do usuário existente
       user = existingUser;
+      if (name && name !== 'Usuário') {
+        user.name = name;
+      }
+      if (avatar) {
+        user.avatar = avatar;
+      }
+      saveMockDB(db);
     }
     
     const token = generateId();
@@ -320,10 +330,10 @@ export const authAPI = {
   },
 
   // Login com Google OAuth
-  googleLogin: async (accessToken: string): Promise<{ user: User; token: string }> => {
+  googleLogin: async (accessToken: string, userInfo?: any): Promise<{ user: User; token: string }> => {
     const result = await apiRequest<{ user: User; token: string }>('/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ accessToken }),
+      body: JSON.stringify({ accessToken, userInfo }),
     });
     setAuthToken(result.token);
     return result;

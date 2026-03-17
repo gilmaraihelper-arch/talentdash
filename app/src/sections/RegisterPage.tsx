@@ -55,7 +55,7 @@ const plans: { key: PlanType; name: string; price: string; description: string; 
 ];
 
 export function RegisterPage({ store }: RegisterPageProps) {
-  const { navigateTo, register, login } = store;
+  const { navigateTo, register, googleLogin } = store;
   const [step, setStep] = useState<'plan' | 'form'>('form'); // Começa direto no formulário
   const [selectedPlan, setSelectedPlan] = useState<PlanType>('free'); // Plano free por padrão
   const [showPassword, setShowPassword] = useState(false);
@@ -243,9 +243,19 @@ export function RegisterPage({ store }: RegisterPageProps) {
             
             {/* Google Login - Primeiro */}
             <GoogleLoginButton
-              onSuccess={(_token, user) => {
-                // Login direto com Google - não precisa criar senha
-                login(user.email, 'google-oauth');
+              onSuccess={async (accessToken, userInfo) => {
+                try {
+                  // Tentar login com Google
+                  await googleLogin(accessToken, userInfo);
+                  // Se sucesso, o usuário é redirecionado automaticamente
+                } catch (error: any) {
+                  const errorMessage = error?.message || '';
+                  if (errorMessage.includes('já cadastrado') || errorMessage.includes('already exists') || errorMessage.includes('existe')) {
+                    setRegisterError('Esta conta Google já está cadastrada. Clique em "Entrar" abaixo para fazer login.');
+                  } else {
+                    setRegisterError('Erro ao fazer login com Google: ' + errorMessage);
+                  }
+                }
               }}
               onError={(error) => {
                 setRegisterError('Erro ao fazer login com Google: ' + error.message);
