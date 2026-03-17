@@ -50,6 +50,14 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
     // Usar popup (TokenClient) em vez de redirect
     try {
       console.log('[Google] Iniciando initTokenClient...');
+      console.log('[Google] Client ID usado:', GOOGLE_CLIENT_ID.substring(0, 20) + '...');
+      
+      if (!window.google.accounts?.oauth2?.initTokenClient) {
+        console.error('[Google] API oauth2.initTokenClient não disponível');
+        onError?.(new Error('Google OAuth API não carregada corretamente'));
+        return;
+      }
+      
       const client = window.google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: 'email profile openid',
