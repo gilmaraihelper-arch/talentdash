@@ -42,18 +42,38 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
       return;
     }
 
-    // Usar redirect em vez de popup para evitar problemas de callback
-    const targetUrl = encodeURIComponent(window.location.origin + '/auth/callback');
-    
-    // Redirecionar para OAuth
-    window.location.href = 
-      `https://accounts.google.com/o/oauth2/v2/auth?` +
-      `client_id=${GOOGLE_CLIENT_ID}&` +
-      `response_type=token&` +
-      `redirect_uri=${targetUrl}&` +
-      `scope=email profile&` +
-      `state=${Date.now()}`;
-  }, [isScriptLoaded, onError]);
+    // Usar popup (TokenClient) em vez de redirect
+    try {
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'email profile openid',
+        callback: (response: any) => {
+          if (response.error) {
+            onError?.(new Error(response.error));
+            return;
+          }
+          
+          // Obter informações do usuário
+          const token = response.access_token;
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+            .then(res => res.json())
+            .then(userInfo => {
+              onSuccess(token, userInfo);
+            })
+            .catch(err => {
+              console.error('Erro ao buscar info do usuário:', err);
+              onError?.(err);
+            });
+        },
+      });
+      client.requestAccessToken();
+    } catch (err) {
+      console.error('Erro ao iniciar Google OAuth:', err);
+      onError?.(err as Error);
+    }
+  }, [onSuccess, onError, isScriptLoaded]);
 
   return (
     <Button
