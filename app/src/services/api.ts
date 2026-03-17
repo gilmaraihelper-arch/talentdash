@@ -270,6 +270,16 @@ export const authAPI = {
     setAuthToken(result.token);
     return result;
   },
+
+  // Login com Google OAuth
+  googleLogin: async (accessToken: string): Promise<{ user: User; token: string }> => {
+    const result = await apiRequest<{ user: User; token: string }>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken }),
+    });
+    setAuthToken(result.token);
+    return result;
+  },
   
   getMe: async (): Promise<User> => {
     return apiRequest<User>('/auth/me');

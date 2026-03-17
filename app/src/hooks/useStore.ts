@@ -173,32 +173,21 @@ export function useStore() {
   }, []);
 
   // ============ GOOGLE OAUTH LOGIN ============
-  const googleLogin = useCallback(async (googleUser: { email: string; name: string; picture?: string }) => {
+  const googleLogin = useCallback(async (accessToken: string) => {
     try {
       setIsLoading(true);
       setError(null);
       
-      // Criar ou logar usuário com dados do Google
-      // Em produção, isso deve chamar uma API específica para OAuth
-      const mockUser: User = {
-        id: 'google-' + googleUser.email,
-        email: googleUser.email,
-        name: googleUser.name,
-        avatar: googleUser.picture,
-        plan: 'pro', // Usuários Google começam com PRO
-        role: googleUser.email === 'gilmar.aihelper@gmail.com' ? 'ADMIN' : 'USER',
-        paymentMethods: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      // Chamar o endpoint do backend para validar o token e fazer login
+      const { user, token } = await authAPI.googleLogin(accessToken);
       
-      // Salvar no localStorage para persistência
-      localStorage.setItem('auth_token', 'google-oauth-token');
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      // Salvar token no localStorage
+      localStorage.setItem('talentdash_token', token);
       
+      // Atualizar estado
       setState(prev => ({
         ...prev,
-        user: mockUser,
+        user,
         isAuthenticated: true,
         currentView: 'user-dashboard',
       }));
@@ -206,7 +195,7 @@ export function useStore() {
       // Load user's jobs
       await loadJobs();
       
-      return mockUser;
+      return user;
     } catch (err: any) {
       setError(err.message || 'Erro ao fazer login com Google');
       throw err;

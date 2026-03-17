@@ -152,14 +152,10 @@ export function LoginPage({ store }: LoginPageProps) {
             
             {/* Google Login - Primeiro */}
             <GoogleLoginButton
-              onSuccess={async (_token, user) => {
+              onSuccess={async (accessToken, _userInfo) => {
                 try {
-                  // Login com Google OAuth - aguarda conclusão
-                  await googleLogin({
-                    email: user.email,
-                    name: user.name,
-                    picture: user.picture,
-                  });
+                  // Login com Google OAuth - envia o accessToken para o backend validar
+                  await googleLogin(accessToken);
                   // Navegação já é tratada dentro de googleLogin (currentView: 'user-dashboard')
                 } catch (error: any) {
                   setLoginError('Erro ao fazer login com Google: ' + error.message);

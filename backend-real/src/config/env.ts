@@ -15,6 +15,10 @@ const envSchema = z.object({
   UPLOAD_DIR: z.string().default('uploads'),
   RATE_LIMIT_WINDOW_MS: z.string().default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().default('100'),
+  // Google OAuth - configuração opcional
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REDIRECT_URI: z.string().optional(),
 });
 
 // Parse e validação
@@ -36,6 +40,10 @@ export const config = {
   uploadDir: parsedEnv.data.UPLOAD_DIR,
   rateLimitWindowMs: parseInt(parsedEnv.data.RATE_LIMIT_WINDOW_MS, 10),
   rateLimitMaxRequests: parseInt(parsedEnv.data.RATE_LIMIT_MAX_REQUESTS, 10),
+  // Google OAuth
+  googleClientId: parsedEnv.data.GOOGLE_CLIENT_ID || '',
+  googleClientSecret: parsedEnv.data.GOOGLE_CLIENT_SECRET || '',
+  googleRedirectUri: parsedEnv.data.GOOGLE_REDIRECT_URI || '',
 };
 
 export default config;

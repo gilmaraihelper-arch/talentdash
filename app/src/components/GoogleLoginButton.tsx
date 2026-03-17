@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 interface GoogleLoginButtonProps {
-  onSuccess: (token: string, user: any) => void;
+  onSuccess: (accessToken: string, userInfo: any) => void;
   onError?: (error: Error) => void;
 }
 
@@ -54,13 +54,14 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
           }
           
           // Obter informações do usuário
-          const token = response.access_token;
+          const accessToken = response.access_token;
           fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${accessToken}` }
           })
             .then(res => res.json())
             .then(userInfo => {
-              onSuccess(token, userInfo);
+              // Passar o accessToken para que o backend possa validar
+              onSuccess(accessToken, userInfo);
             })
             .catch(err => {
               console.error('Erro ao buscar info do usuário:', err);
