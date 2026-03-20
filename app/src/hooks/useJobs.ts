@@ -83,14 +83,15 @@ export function useJobs(
       if (!state.user?.id) throw new Error('Usuário não autenticado');
       const jobData = {
         name,
-        plan,
         custom_fields: customFields,
         description: options?.description,
         template: options?.template || 'blank',
-        dashboard_model: options?.dashboardModel || 'padrao',
         color_theme: options?.colorTheme || 'blue',
         user_id: state.user.id,
       };
+      // TODO: Adicionar plan e dashboard_model ao schema do Supabase
+      // plan: plan,
+      // dashboard_model: options?.dashboardModel || 'padrao',
       const newJob = await createJobDb(jobData);
       const jobWithCamel = snakeToCamel(newJob) as Job;
       setState(prev => ({
