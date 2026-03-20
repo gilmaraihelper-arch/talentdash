@@ -54,15 +54,7 @@ export function LoginPage({ store }: LoginPageProps) {
     setIsLoading(true);
     
     try {
-      // Simulação de chamada API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simula erro de login para demonstração (em produção, isso viria da API)
-      // if (data.email === 'erro@exemplo.com') {
-      //   throw new Error('Credenciais inválidas');
-      // }
-      
-      login(data.email, data.password);
+      await login(data.email, data.password);
     } catch (error) {
       setLoginError('E-mail ou senha incorretos. Tente novamente.');
     } finally {
