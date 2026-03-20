@@ -110,7 +110,7 @@ export function UserDashboardPage({ store }: UserDashboardPageProps) {
       brand: 'Visa',
       expiryMonth: paymentForm.expiryMonth,
       expiryYear: paymentForm.expiryYear,
-      isDefault: user?.paymentMethods.length === 0,
+      isDefault: user?.paymentMethods?.length === 0,
     });
     setPaymentForm({
       cardNumber: '',
@@ -578,13 +578,13 @@ export function UserDashboardPage({ store }: UserDashboardPageProps) {
             </TabsList>
             
             <TabsContent value="list" className="space-y-3">
-              {user.paymentMethods.length === 0 ? (
+              {(user.paymentMethods?.length ?? 0) === 0 ? (
                 <div className="text-center py-8">
                   <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                   <p className="text-slate-500">Nenhum cartão cadastrado</p>
                 </div>
               ) : (
-                user.paymentMethods.map((pm) => (
+                user.paymentMethods?.map((pm) => (
                   <Card key={pm.id}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
