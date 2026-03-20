@@ -61,14 +61,15 @@ export function CandidateCard({ candidate, job, onClick }: CandidateCardProps) {
     const field = job.customFields.find((f) => f.id === key);
     if (field) {
       const name = field.name.toLowerCase();
+      const strValue = value as string | undefined;
       if (name.includes('inglês') || name.includes('ingles') || name.includes('english')) {
-        if (value && value !== 'Básico') {
-          skills.push({ type: 'en', value });
+        if (strValue && strValue !== 'Básico') {
+          skills.push({ type: 'en', value: strValue });
         }
       }
       if (name.includes('espanhol') || name.includes('español') || name.includes('spanish')) {
-        if (value && value !== 'Básico') {
-          skills.push({ type: 'es', value });
+        if (strValue && strValue !== 'Básico') {
+          skills.push({ type: 'es', value: strValue });
         }
       }
     }
@@ -79,7 +80,7 @@ export function CandidateCard({ candidate, job, onClick }: CandidateCardProps) {
     f.name.toLowerCase().includes('experiência') || f.name.toLowerCase().includes('experiencia')
   );
   const yearsExp = experienceField
-    ? candidate.customFields[experienceField.id]
+    ? (candidate.customFields[experienceField.id] as string | number | undefined) ?? null
     : null;
 
   return (

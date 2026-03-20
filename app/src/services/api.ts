@@ -1,3 +1,18 @@
+/**
+ * ============================================================
+ * LEGACY REST API LAYER — NOT CURRENTLY IN USE
+ * ============================================================
+ * This file is a legacy REST API + localStorage mock client.
+ * The application has migrated to Supabase and now uses
+ * `src/lib/supabase.ts` directly (via `src/hooks/useStore.ts`).
+ *
+ * DO NOT DELETE — this layer may be useful in the future if
+ * a backend REST API is reintroduced or a new integration is needed.
+ *
+ * Last active: pre-Supabase migration
+ * Current status: UNUSED
+ * ============================================================
+ */
 import type { User, Job, Candidate, PaymentMethod } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';

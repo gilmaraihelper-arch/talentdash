@@ -1,4 +1,5 @@
 import { Suspense, lazy } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useStore } from '@/hooks/useStore';
 import { PageLoader } from '@/components/PageLoader';
 import './App.css';
@@ -15,12 +16,10 @@ import './App.css';
 const LandingPage = lazy(() => import('@/sections/LandingPage').then(m => ({ default: m.LandingPage })));
 
 // AUTH CHUNK - Sistema de autenticação (Login, Register)
-// Carregado apenas quando usuário acessa páginas de auth
 const LoginPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/RegisterPage').then(m => ({ default: m.RegisterPage })));
 
-// DASHBOARD CHUNK - Área logada pesada (UserDashboard, CreateJob, etc)
-// Contém componentes pesados como Recharts
+// DASHBOARD CHUNK - Área logada pesada
 const UserDashboardPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/UserDashboardPage').then(m => ({ default: m.UserDashboardPage })));
 const CreateJobPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/CreateJobPage').then(m => ({ default: m.CreateJobPage })));
 const DataStructurePage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/DataStructurePage').then(m => ({ default: m.DataStructurePage })));
@@ -29,90 +28,115 @@ const DashboardPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/s
 const CandidateDetailPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/CandidateDetailPage').then(m => ({ default: m.CandidateDetailPage })));
 const AdminPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/AdminPage').then(m => ({ default: m.AdminPage })));
 
+// ============================================
+// PROTECTED ROUTE - Redirects to /login if not authenticated
+// ============================================
+function ProtectedRoute({ 
+  children, 
+  adminOnly = false 
+}: { 
+  children: React.ReactNode;
+  adminOnly?: boolean;
+}) {
+  const store = useStore();
+  const location = useLocation();
+
+  if (!store.state.isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (adminOnly && store.state.user?.role !== 'ADMIN') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   const store = useStore();
-  const { state } = store;
 
-  // Renderiza a tela atual baseada no estado de navegação
-  // Com Suspense para mostrar loading enquanto os chunks carregam
-  switch (state.currentView) {
-    case 'landing':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando taldash..." />}>
-          <LandingPage store={store} />
-        </Suspense>
-      );
-    
-    case 'login':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando login..." />}>
-          <LoginPage store={store} />
-        </Suspense>
-      );
-    
-    case 'register':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando cadastro..." />}>
-          <RegisterPage store={store} />
-        </Suspense>
-      );
-    
-    case 'user-dashboard':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando dashboard..." />}>
-          <UserDashboardPage store={store} />
-        </Suspense>
-      );
-    
-    case 'create-job':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando criador de vagas..." />}>
-          <CreateJobPage store={store} />
-        </Suspense>
-      );
-    
-    case 'data-structure':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando estrutura de dados..." />}>
-          <DataStructurePage store={store} />
-        </Suspense>
-      );
-    
-    case 'add-candidates':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando gestão de candidatos..." />}>
-          <AddCandidatesPage store={store} />
-        </Suspense>
-      );
-    
-    case 'dashboard':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando analytics..." />}>
-          <DashboardPage store={store} />
-        </Suspense>
-      );
-    
-    case 'candidate-detail':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando detalhes..." />}>
-          <CandidateDetailPage store={store} />
-        </Suspense>
-      );
-    
-    case 'admin':
-      return (
-        <Suspense fallback={<PageLoader message="Carregando painel admin..." />}>
-          <AdminPage onBack={() => store.navigateTo('user-dashboard')} />
-        </Suspense>
-      );
-    
-    default:
-      return (
-        <Suspense fallback={<PageLoader message="Carregando..." />}>
-          <LandingPage store={store} />
-        </Suspense>
-      );
-  }
+  return (
+    <Suspense fallback={<PageLoader message="Carregando..." />}>
+      <Routes>
+        {/* Public routes */}
+        <Route
+          path="/"
+          element={<LandingPage store={store} />}
+        />
+        <Route
+          path="/login"
+          element={<LoginPage store={store} />}
+        />
+        <Route
+          path="/register"
+          element={<RegisterPage store={store} />}
+        />
+
+        {/* Protected dashboard routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboardPage store={store} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/create-job"
+          element={
+            <ProtectedRoute>
+              <CreateJobPage store={store} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/data-structure"
+          element={
+            <ProtectedRoute>
+              <DataStructurePage store={store} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/add-candidates"
+          element={
+            <ProtectedRoute>
+              <AddCandidatesPage store={store} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/analytics"
+          element={
+            <ProtectedRoute>
+              <DashboardPage store={store} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/candidate/:id"
+          element={
+            <ProtectedRoute>
+              <CandidateDetailPage store={store} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin route */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminPage onBack={() => store.navigateTo('user-dashboard')} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
+  );
 }
 
 export default App;

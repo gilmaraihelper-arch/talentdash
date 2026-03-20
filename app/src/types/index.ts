@@ -82,10 +82,61 @@ export interface Candidate {
   status: CandidateStatus;
   observacoes: string;
   // Campos personalizados (dinâmicos)
-  customFields: Record<string, any>;
+  customFields: Record<string, unknown>;
   // Metadados
   createdAt: Date;
   updatedAt: Date;
+}
+
+// ============================================================
+// CANDIDATE FIELD MAPPING — Frontend (PT/camelCase) ↔ DB (snake_case)
+// ============================================================
+//
+// | Frontend (CandidateInput)  | Database (CandidateDB)      |
+// |----------------------------|-----------------------------|
+// | jobId                      | job_id                      |
+// | nome                       | nome                        |
+// | idade                      | idade                       |
+// | cidade                     | cidade                      |
+// | curriculo                  | curriculo                   |
+// | pretensaoSalarial          | pretensao_salarial          |
+// | salarioAtual               | salario_atual               |
+// | status                     | status                      |
+// | observacoes                | observacoes                 |
+// | customFields               | custom_fields               |
+// | createdAt                  | created_at                  |
+// | updatedAt                  | updated_at                  |
+// ============================================================
+
+/** Shape sent by the frontend when creating/updating a candidate */
+export interface CandidateInput {
+  jobId: string;
+  nome: string;
+  idade: number;
+  cidade: string;
+  curriculo: string;
+  pretensaoSalarial: number;
+  salarioAtual: number;
+  status: CandidateStatus;
+  observacoes: string;
+  customFields: Record<string, unknown>;
+}
+
+/** Shape returned by Supabase DB (before snakeToCamel conversion) */
+export interface CandidateDB {
+  id: string;
+  job_id: string;
+  nome: string;
+  idade: number;
+  cidade: string;
+  curriculo: string;
+  pretensao_salarial: number;
+  salario_atual: number;
+  status: CandidateStatus;
+  observacoes: string;
+  custom_fields: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
 
 // Estado do funil para dashboard
