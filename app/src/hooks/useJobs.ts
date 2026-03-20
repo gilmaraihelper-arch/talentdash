@@ -83,11 +83,11 @@ export function useJobs(
       if (!state.user?.id) throw new Error('Usuário não autenticado');
       const jobData = {
         name,
-        plan,
+        // plan: plan, // TODO: adicionar ao schema do Supabase
         custom_fields: customFields,
         description: options?.description,
         template: options?.template || 'blank',
-        dashboard_model: options?.dashboardModel || 'padrao',
+        // dashboard_model: options?.dashboardModel || 'padrao', // TODO: adicionar ao schema do Supabase
         color_theme: options?.colorTheme || 'blue',
         user_id: state.user.id,
       };
