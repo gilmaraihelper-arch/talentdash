@@ -10,11 +10,14 @@ import { useNavigate } from 'react-router-dom';
 import type {
   ViewType,
   AppState,
+  User,
 } from '@/types';
 import {
   getCurrentUser,
   fetchUserProfile,
+  createUserProfile,
   signOut,
+  supabase,
 } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { useJobs } from './useJobs';
@@ -103,31 +106,62 @@ export function useStore() {
   useEffect(() => {
     let isMounted = true;
 
-    const initAuth = async () => {
+    const handleUser = async (user: { id: string; email?: string } | null) => {
+      if (!user || !isMounted) {
+        if (isMounted) setIsAuthInitializing(false);
+        return;
+      }
       try {
-        const user = await getCurrentUser();
-        if (user && isMounted) {
-          const profile = await fetchUserProfile(user.id);
-          if (profile && isMounted) {
-            const userWithCamel = snakeToCamel(profile);
-            setState(prev => ({
-              ...prev,
-              user: userWithCamel,
-              isAuthenticated: true,
-            }));
-            await jobs.loadJobs(user.id);
-          }
+        let profile = await fetchUserProfile(user.id);
+        if (!profile) {
+          // Cria perfil se não existir (ex: primeiro login Google)
+          profile = await createUserProfile({
+            id: user.id,
+            email: user.email,
+            name: (user as any).user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário',
+            company_name: '',
+          } as any);
+        }
+        if (profile && isMounted) {
+          const userWithCamel = snakeToCamel(profile);
+          setState(prev => ({
+            ...prev,
+            user: userWithCamel,
+            isAuthenticated: true,
+          }));
+          await jobs.loadJobs(user.id);
         }
       } catch (err) {
-        console.error('Failed to check auth:', err);
-        try { await signOut(); } catch { /* ignore */ }
+        console.error('Failed to load user profile:', err);
       } finally {
         if (isMounted) setIsAuthInitializing(false);
       }
     };
 
-    initAuth();
-    return () => { isMounted = false; };
+    // Ouvir mudanças de sessão em tempo real (cobre OAuth callback)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsAuthInitializing(true);
+        await handleUser(session?.user ?? null);
+        if (session && window.location.pathname === '/auth/callback') {
+          navigate('/dashboard');
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setState(initialState);
+        setIsAuthInitializing(false);
+      }
+    });
+
+    // Inicialização inicial
+    getCurrentUser().then(user => handleUser(user)).catch(() => {
+      if (isMounted) setIsAuthInitializing(false);
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
