@@ -18,6 +18,7 @@ const LandingPage = lazy(() => import('@/sections/LandingPage').then(m => ({ def
 // AUTH CHUNK - Sistema de autenticação (Login, Register)
 const LoginPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const AuthCallbackPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })));
 
 // DASHBOARD CHUNK - Área logada pesada
 const UserDashboardPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/UserDashboardPage').then(m => ({ default: m.UserDashboardPage })));
@@ -77,6 +78,9 @@ function App() {
           path="/register"
           element={<RegisterPage store={store} />}
         />
+
+        {/* Auth callback - OAuth providers redirect here */}
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
         {/* Protected dashboard routes */}
         <Route
