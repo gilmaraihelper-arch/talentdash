@@ -83,6 +83,7 @@ export function useStore() {
   const [state, setState] = useState<AppState>(initialState);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthInitializing, setIsAuthInitializing] = useState(true);
   const navigate = useNavigate();
 
   // Domain hooks — pass shared state setters
@@ -120,6 +121,8 @@ export function useStore() {
       } catch (err) {
         console.error('Failed to check auth:', err);
         try { await signOut(); } catch { /* ignore */ }
+      } finally {
+        if (isMounted) setIsAuthInitializing(false);
       }
     };
 
@@ -142,6 +145,7 @@ export function useStore() {
   return {
     state,
     isLoading,
+    isAuthInitializing,
     error,
     navigateTo,
     // Auth

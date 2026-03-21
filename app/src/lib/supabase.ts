@@ -108,13 +108,20 @@ export const fetchJobs = async (userId: string): Promise<Job[]> => {
 };
 
 export const createJob = async (jobData: Partial<Job>) => {
+  console.log('[Supabase] Criando job com dados:', jobData);
+  
   const { data, error } = await supabase
     .from('jobs')
     .insert(jobData)
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) {
+    console.error('[Supabase] Erro ao criar job:', error);
+    throw error;
+  }
+  
+  console.log('[Supabase] Job criado com sucesso:', data);
   return data as Job;
 };
 

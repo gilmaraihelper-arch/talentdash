@@ -285,17 +285,24 @@ export function CreateJobPage({ store }: CreateJobPageProps) {
     setIsCreating(true);
 
     try {
+      console.log('[CreateJobPage] Iniciando criação do job...');
+      console.log('[CreateJobPage] Nome:', jobInfo.jobName.trim());
+      
       // Aguarda o job ser criado antes de navegar
-      await createJob(jobInfo.jobName.trim(), selectedPlan, customFields, {
+      const newJob = await createJob(jobInfo.jobName.trim(), selectedPlan, customFields, {
         template: selectedTemplate,
         dashboardModel: selectedDashboardModel,
         colorTheme: selectedColorTheme,
         description: jobInfo.jobDescription,
       });
+      
+      console.log('[CreateJobPage] Job criado com sucesso:', newJob);
+      console.log('[CreateJobPage] Navegando para data-structure...');
+      
       navigateTo('data-structure');
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : JSON.stringify(error);
-      console.error('Erro ao criar mapeamento:', errMsg);
+      console.error('[CreateJobPage] Erro ao criar mapeamento:', errMsg);
       alert('Erro ao criar: ' + errMsg);
     } finally {
       setIsCreating(false);

@@ -67,9 +67,9 @@ export function useJobs(
 
   const createJob = useCallback(async (
     name: string,
-    plan: PlanType,
-    customFields: CustomField[],
-    options?: {
+    _plan: PlanType,
+    _customFields: CustomField[],
+    _options?: {
       companyLogo?: string;
       template?: JobTemplateType;
       dashboardModel?: DashboardModel;
@@ -81,14 +81,15 @@ export function useJobs(
       setIsLoading(true);
       setError(null);
       if (!state.user?.id) throw new Error('Usuário não autenticado');
+      // Campos básicos - removemos os opcionais temporariamente até adicionar no Supabase
       const jobData = {
         name,
-        // plan: plan, // TODO: adicionar ao schema do Supabase
-        custom_fields: customFields,
-        description: options?.description,
-        template: options?.template || 'blank',
-        // dashboard_model: options?.dashboardModel || 'padrao', // TODO: adicionar ao schema do Supabase
-        color_theme: options?.colorTheme || 'blue',
+        // plan: plan,
+        custom_fields: [],
+        // description: options?.description,
+        // template: options?.template || 'blank',
+        // dashboard_model: options?.dashboardModel || 'padrao',
+        // color_theme: options?.colorTheme || 'blue',
         user_id: state.user.id,
       };
       const newJob = await createJobDb(jobData);

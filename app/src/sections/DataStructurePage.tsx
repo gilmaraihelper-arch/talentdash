@@ -28,9 +28,22 @@ const nextSteps = [
 ];
 
 export function DataStructurePage({ store }: DataStructurePageProps) {
-  const { navigateTo, state } = store;
+  const { navigateTo, state, isLoading } = store;
   const job = state.selectedJob;
   
+  // Aguarda o estado do React ser atualizado antes de redirecionar,
+  // evitando redirect prematuro logo após createJob (setState é assíncrono)
+  if (!job && isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Criando mapeamento...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!job) {
     navigateTo('create-job');
     return null;
@@ -47,7 +60,7 @@ export function DataStructurePage({ store }: DataStructurePageProps) {
   
   const allFields = [
     ...BASIC_FIELDS.map(f => ({ ...f, isBasic: true })),
-    ...job.customFields.map(f => ({ ...f, isBasic: false })),
+    ...(job.customFields || []).map(f => ({ ...f, isBasic: false })),
   ];
 
   return (

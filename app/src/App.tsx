@@ -42,6 +42,11 @@ function ProtectedRoute({
 }) {
   const location = useLocation();
 
+  // Aguarda inicialização da autenticação antes de decidir redirecionar
+  if (store.isAuthInitializing) {
+    return <PageLoader message="Verificando sessão..." />;
+  }
+
   if (!store.state.isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
