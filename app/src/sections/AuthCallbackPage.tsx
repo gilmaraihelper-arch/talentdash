@@ -5,38 +5,44 @@ import { supabase } from '@/lib/supabase';
 /**
  * Página de callback do OAuth (Google, etc.)
  * O Supabase redireciona para cá após autenticação social.
- * Aguarda a sessão ser estabelecida e redireciona para o dashboard.
+ * Usa onAuthStateChange para aguardar a sessão ser estabelecida.
  */
 export function AuthCallbackPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleCallback = async () => {
-      // O Supabase processa automaticamente o hash/params da URL
-      const { data, error } = await supabase.auth.getSession();
+    // Escuta mudanças de auth — o Supabase processa o hash da URL automaticamente
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('[AuthCallback] event:', event, 'session:', !!session);
 
-      if (error) {
-        console.error('Auth callback error:', error);
-        navigate('/login?error=auth_failed', { replace: true });
+      if (event === 'SIGNED_IN' && session) {
+        subscription.unsubscribe();
+        navigate('/dashboard', { replace: true });
         return;
       }
 
+      if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
+        subscription.unsubscribe();
+        navigate('/login', { replace: true });
+        return;
+      }
+    });
+
+    // Fallback: se depois de 5s não resolveu, tenta verificar sessão diretamente
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase.auth.getSession();
+      subscription.unsubscribe();
       if (data.session) {
         navigate('/dashboard', { replace: true });
       } else {
-        // Aguarda um pouco e tenta novamente (o Supabase pode estar processando)
-        setTimeout(async () => {
-          const { data: retryData } = await supabase.auth.getSession();
-          if (retryData.session) {
-            navigate('/dashboard', { replace: true });
-          } else {
-            navigate('/login', { replace: true });
-          }
-        }, 1500);
+        navigate('/login', { replace: true });
       }
-    };
+    }, 5000);
 
-    handleCallback();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [navigate]);
 
   return (
