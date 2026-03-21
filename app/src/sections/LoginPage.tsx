@@ -137,13 +137,11 @@ export function LoginPage({ store }: LoginPageProps) {
               </Alert>
             )}
             
-            {/* Google Login - Primeiro */}
+            {/* Google Login - usa OAuth redirect do Supabase (mesmo fluxo do registro) */}
             <GoogleLoginButton
-              onSuccess={async (accessToken, _userInfo) => {
+              onSuccess={async (_accessToken, _userInfo) => {
                 try {
-                  // Login com Google OAuth - envia o accessToken para o backend validar
-                  await googleLogin(accessToken);
-                  // Navegação já é tratada dentro de googleLogin (currentView: 'user-dashboard')
+                  await googleLogin(_accessToken, _userInfo);
                 } catch (error: any) {
                   setLoginError('Erro ao fazer login com Google: ' + error.message);
                 }
