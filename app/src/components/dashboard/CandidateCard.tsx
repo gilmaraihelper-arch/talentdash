@@ -103,7 +103,7 @@ export function CandidateCard({ candidate, job, onClick }: CandidateCardProps) {
             <div>
               <h3 className="font-semibold text-slate-900 text-sm truncate">{candidate.nome}</h3>
               <p className="text-xs text-slate-500">
-                {candidate.cidade} {candidate.salarioAtual > 0 && `• ${candidate.salarioAtual.toLocaleString('pt-BR')}`}
+                {candidate.cidade || 'Sem cidade'} {(candidate.salarioAtual || 0) > 0 && `• R$ ${(candidate.salarioAtual || 0).toLocaleString('pt-BR')}`}
               </p>
             </div>
             <Badge
@@ -133,7 +133,7 @@ export function CandidateCard({ candidate, job, onClick }: CandidateCardProps) {
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-400">Pretensão:</span>
               <span className="text-sm font-semibold text-[#F7931E]">
-                R$ {candidate.pretensaoSalarial.toLocaleString('pt-BR')}
+                {candidate.pretensaoSalarial ? `R$ ${candidate.pretensaoSalarial.toLocaleString('pt-BR')}` : '-'}
               </span>
             </div>
             {yearsExp && (

@@ -153,7 +153,7 @@ export function DashboardPage({ store }: DashboardPageProps) {
     return jobCandidates.filter((candidate) => {
       const matchesSearch =
         candidate.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        candidate.cidade.toLowerCase().includes(searchQuery.toLowerCase());
+        (candidate.cidade || '').toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus =
         statusFilter === 'all' || candidate.status === statusFilter;
       return matchesSearch && matchesStatus;
@@ -174,13 +174,13 @@ export function DashboardPage({ store }: DashboardPageProps) {
     const avgSalary =
       total > 0
         ? Math.round(
-            jobCandidates.reduce((sum, c) => sum + c.pretensaoSalarial, 0) / total
+            jobCandidates.reduce((sum, c) => sum + (c.pretensaoSalarial || 0), 0) / total
           )
         : 0;
     const avgAge =
       total > 0
         ? Math.round(
-            jobCandidates.reduce((sum, c) => sum + c.idade, 0) / total
+            jobCandidates.reduce((sum, c) => sum + (c.idade || 0), 0) / total
           )
         : 0;
     const avgExp =
@@ -234,7 +234,7 @@ export function DashboardPage({ store }: DashboardPageProps) {
   const cityData = useMemo(() => {
     const cityCounts: Record<string, number> = {};
     jobCandidates.forEach((c) => {
-      const city = c.cidade.split(',')[0];
+      const city = (c.cidade || '').split(',')[0] || 'Não informada';
       cityCounts[city] = (cityCounts[city] || 0) + 1;
     });
     return Object.entries(cityCounts)
@@ -266,7 +266,7 @@ export function DashboardPage({ store }: DashboardPageProps) {
       name: range.label,
       value: jobCandidates.filter(
         (c) =>
-          c.pretensaoSalarial >= range.min && c.pretensaoSalarial < range.max
+          (c.pretensaoSalarial || 0) >= range.min && (c.pretensaoSalarial || 0) < range.max
       ).length,
       color: '#F7931E',
     }));
@@ -847,7 +847,7 @@ export function DashboardPage({ store }: DashboardPageProps) {
                                     <td className="py-3 px-4">
                                       <span className="font-medium text-[#F7931E]">
                                         R${' '}
-                                        {candidate.pretensaoSalarial.toLocaleString('pt-BR')}
+                                        {(candidate.pretensaoSalarial || 0).toLocaleString('pt-BR')}
                                       </span>
                                     </td>
                                     <td className="py-3 px-4">

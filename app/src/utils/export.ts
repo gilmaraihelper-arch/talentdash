@@ -78,10 +78,10 @@ export async function exportToExcel(
     const row: Record<string, any> = {
       '#': index + 1,
       'Nome': c.nome,
-      'Idade': c.idade,
-      'Cidade': c.cidade,
+      'Idade': String(c.idade || ''),
+      'Cidade': (c.cidade || ""),
       'Status': getStatusLabel(c.status),
-      'Pretensão Salarial': c.pretensaoSalarial,
+      'Pretensão Salarial': (c.pretensaoSalarial ?? 0),
       'Salário Atual': c.salarioAtual || '-',
       'Observações': c.observacoes || '-',
     };
@@ -403,10 +403,10 @@ export async function exportToPDF(
       const row: (string | number)[] = [
         index + 1,
         displayName,
-        c.idade,
-        c.cidade,
+        String(c.idade || ''),
+        (c.cidade || ""),
         getStatusLabel(c.status),
-        `R$ ${c.pretensaoSalarial.toLocaleString('pt-BR')}`,
+        `R$ ${((c.pretensaoSalarial ?? 0) || 0).toLocaleString('pt-BR')}`,
       ];
 
       // Adicionar campos personalizados
@@ -675,7 +675,7 @@ function calculateStats(candidates: Candidate[]) {
   const avgSalary =
     total > 0
       ? Math.round(
-          candidates.reduce((sum, c) => sum + c.pretensaoSalarial, 0) / total
+          candidates.reduce((sum, c) => sum + (c.pretensaoSalarial ?? 0), 0) / total
         )
       : 0;
 

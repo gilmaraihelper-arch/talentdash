@@ -70,6 +70,8 @@ export function AddCandidatesPage({ store }: AddCandidatesPageProps) {
     mode: 'onChange',
     defaultValues: {
       nome: '',
+      email: '',
+      telefone: '',
       idade: undefined,
       cidade: '',
       curriculo: '',
@@ -166,11 +168,13 @@ export function AddCandidatesPage({ store }: AddCandidatesPageProps) {
       id: `manual-${Date.now()}`,
       jobId: job.id,
       nome: data.nome,
-      idade: Number(data.idade) || 0,
-      cidade: data.cidade,
+      email: data.email || '',
+      telefone: data.telefone || '',
+      idade: Number(data.idade) || undefined,
+      cidade: data.cidade || '',
       curriculo: data.curriculo || '',
-      pretensaoSalarial: Number(data.pretensaoSalarial) || 0,
-      salarioAtual: Number(data.salarioAtual) || 0,
+      pretensaoSalarial: Number(data.pretensaoSalarial) || undefined,
+      salarioAtual: Number(data.salarioAtual) || undefined,
       status: data.status as z.infer<typeof candidateStatusSchema>,
       observacoes: data.observacoes || '',
       customFields: job.customFields.reduce((acc, cf) => {
@@ -482,7 +486,7 @@ export function AddCandidatesPage({ store }: AddCandidatesPageProps) {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       {BASIC_FIELDS.map((field) => {
-                        const isRequired = ['nome', 'idade', 'cidade', 'status'].includes(field.id);
+                        const isRequired = ['nome', 'email', 'telefone', 'status'].includes(field.id);
                         const fieldError = errors[field.id as keyof CandidateFormData];
                         
                         return (

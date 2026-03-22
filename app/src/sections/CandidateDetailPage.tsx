@@ -148,7 +148,7 @@ export function CandidateDetailPage({ store }: CandidateDetailPageProps) {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Pretensão Salarial</p>
-                      <p className="font-medium">{formatCurrency(displayCandidate.pretensaoSalarial)}</p>
+                      <p className="font-medium">{displayCandidate.pretensaoSalarial ? formatCurrency(displayCandidate.pretensaoSalarial) : '-'}</p>
                     </div>
                   </div>
                   
@@ -158,7 +158,7 @@ export function CandidateDetailPage({ store }: CandidateDetailPageProps) {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Salário Atual</p>
-                      <p className="font-medium">{formatCurrency(displayCandidate.salarioAtual)}</p>
+                      <p className="font-medium">{displayCandidate.salarioAtual ? formatCurrency(displayCandidate.salarioAtual) : '-'}</p>
                     </div>
                   </div>
                   
@@ -330,11 +330,13 @@ export function CandidateDetailPage({ store }: CandidateDetailPageProps) {
                 <div className="flex justify-between">
                   <span className="text-slate-500">Diferença salarial</span>
                   <span className={`font-medium ${
-                    displayCandidate.pretensaoSalarial > displayCandidate.salarioAtual 
+                    (displayCandidate.pretensaoSalarial || 0) > (displayCandidate.salarioAtual || 0) 
                       ? 'text-green-600' 
                       : 'text-slate-600'
                   }}`}>
-                    +{formatCurrency(displayCandidate.pretensaoSalarial - displayCandidate.salarioAtual)}
+                    {displayCandidate.pretensaoSalarial && displayCandidate.salarioAtual 
+                      ? `+${formatCurrency(displayCandidate.pretensaoSalarial - displayCandidate.salarioAtual)}`
+                      : '-'}
                   </span>
                 </div>
               </CardContent>

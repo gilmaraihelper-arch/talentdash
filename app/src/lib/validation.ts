@@ -88,10 +88,20 @@ export const candidateSchema = z.object({
     .max(100, 'Nome muito longo'),
   idade: z
     .number()
-    .min(1, 'Idade é obrigatória')
     .int('Idade deve ser um número inteiro')
     .min(18, 'Idade mínima é 18 anos')
-    .max(100, 'Idade máxima é 100 anos'),
+    .max(100, 'Idade máxima é 100 anos')
+    .optional()
+    .nullable(),
+  email: z
+    .string()
+    .min(1, 'E-mail é obrigatório')
+    .email('E-mail inválido'),
+  telefone: z
+    .string()
+    .min(1, 'Telefone é obrigatório')
+    .min(10, 'Telefone deve ter pelo menos 10 dígitos')
+    .max(20, 'Telefone muito longo'),
   cidade: z
     .string()
     .min(1, 'Cidade é obrigatória')

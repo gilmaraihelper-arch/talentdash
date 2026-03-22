@@ -74,13 +74,16 @@ export interface Candidate {
   jobId: string;
   // Campos básicos obrigatórios
   nome: string;
-  idade: number;
-  cidade: string;
-  curriculo: string; // URL ou nome do arquivo
-  pretensaoSalarial: number;
-  salarioAtual: number;
+  email: string;
+  telefone: string;
+  // Campos básicos opcionais
+  idade?: number;
+  cidade?: string;
+  curriculo?: string;
+  pretensaoSalarial?: number;
+  salarioAtual?: number;
   status: CandidateStatus;
-  observacoes: string;
+  observacoes?: string;
   // Campos personalizados (dinâmicos)
   customFields: Record<string, unknown>;
   // Metadados
@@ -112,13 +115,16 @@ export interface Candidate {
 export interface CandidateInput {
   jobId: string;
   nome: string;
-  idade: number;
-  cidade: string;
-  curriculo: string;
-  pretensaoSalarial: number;
-  salarioAtual: number;
+  email: string;
+  telefone: string;
+  // Campos opcionais
+  idade?: number;
+  cidade?: string;
+  curriculo?: string;
+  pretensaoSalarial?: number;
+  salarioAtual?: number;
   status: CandidateStatus;
-  observacoes: string;
+  observacoes?: string;
   customFields: Record<string, unknown>;
 }
 
@@ -127,13 +133,16 @@ export interface CandidateDB {
   id: string;
   job_id: string;
   nome: string;
-  idade: number;
-  cidade: string;
-  curriculo: string;
-  pretensao_salarial: number;
-  salario_atual: number;
+  email: string;
+  telefone: string;
+  // Campos opcionais no DB
+  idade: number | null;
+  cidade: string | null;
+  curriculo: string | null;
+  pretensao_salarial: number | null;
+  salario_atual: number | null;
   status: CandidateStatus;
-  observacoes: string;
+  observacoes: string | null;
   custom_fields: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -220,6 +229,8 @@ export interface AppState {
 // Configuração de campos básicos
 export const BASIC_FIELDS: CustomField[] = [
   { id: 'nome', name: 'Nome do candidato', type: 'text', icon: 'User', visibility: { card: true, table: true, detail: true } },
+  { id: 'email', name: 'E-mail', type: 'text', icon: 'Mail', visibility: { card: true, table: true, detail: true } },
+  { id: 'telefone', name: 'Telefone', type: 'text', icon: 'Phone', visibility: { card: true, table: true, detail: true } },
   { id: 'idade', name: 'Idade', type: 'number', icon: 'Calendar', visibility: { card: false, table: true, detail: true } },
   { id: 'cidade', name: 'Cidade', type: 'text', icon: 'MapPin', visibility: { card: true, table: true, detail: true } },
   { id: 'curriculo', name: 'Currículo', type: 'link', icon: 'FileText', visibility: { card: false, table: true, detail: true } },
