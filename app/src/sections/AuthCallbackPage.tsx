@@ -1,48 +1,25 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@clerk/clerk-react';
 
 /**
- * Página de callback do OAuth (Google, etc.)
- * O useStore.initAuth detecta a sessão automaticamente ao montar o App.
- * Esta página apenas garante redirect rápido após OAuth.
+ * Página de callback do OAuth (Google, etc.) via Clerk
+ * O Clerk já gerencia o callback automaticamente, mas esta página
+ * garante redirecionamento rápido após autenticação.
  */
 export function AuthCallbackPage() {
   const navigate = useNavigate();
+  const { isSignedIn, isLoaded } = useAuth();
 
   useEffect(() => {
-    let redirected = false;
-
-    // Escuta mudança de estado - evento rápido e confiável
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !redirected) {
-        redirected = true;
-        subscription.unsubscribe();
+    if (isLoaded) {
+      if (isSignedIn) {
         navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/login', { replace: true });
       }
-    });
-
-    // Fallback: se não receber evento em 3s, verifica sessão diretamente
-    const fallbackTimeout = setTimeout(() => {
-      if (!redirected) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user && !redirected) {
-            redirected = true;
-            navigate('/dashboard', { replace: true });
-          } else {
-            navigate('/login', { replace: true });
-          }
-        }).catch(() => {
-          navigate('/login', { replace: true });
-        });
-      }
-    }, 3000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(fallbackTimeout);
-    };
-  }, [navigate]);
+    }
+  }, [isLoaded, isSignedIn, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">

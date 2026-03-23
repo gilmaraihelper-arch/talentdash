@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@clerk/clerk-react';
 import { useStore } from '@/hooks/useStore';
 import { PageLoader } from '@/components/PageLoader';
 import './App.css';
@@ -41,14 +42,15 @@ function ProtectedRoute({
   adminOnly?: boolean;
   store: ReturnType<typeof useStore>;
 }) {
+  const { isSignedIn, isLoaded } = useAuth();
   const location = useLocation();
 
-  // Aguarda inicialização da autenticação antes de decidir redirecionar
-  if (store.isAuthInitializing) {
+  // Aguarda carregamento do Clerk
+  if (!isLoaded || store.isAuthInitializing) {
     return <PageLoader message="Verificando sessão..." />;
   }
 
-  if (!store.state.isAuthenticated) {
+  if (!isSignedIn) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

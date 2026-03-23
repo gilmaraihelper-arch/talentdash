@@ -7,17 +7,15 @@
  */
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 import type {
   ViewType,
   AppState,
   User,
 } from '@/types';
 import {
-  getCurrentUser,
   fetchUserProfile,
   createUserProfile,
-  signOut,
-  supabase,
 } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { useJobs } from './useJobs';
@@ -88,6 +86,7 @@ export function useStore() {
   const [error, setError] = useState<string | null>(null);
   const [isAuthInitializing, setIsAuthInitializing] = useState(true);
   const navigate = useNavigate();
+  const { user: clerkUser, isSignedIn, isLoaded } = useUser();
 
   // Domain hooks — pass shared state setters
   const jobs = useJobs(state, setState, setIsLoading, setError);
@@ -101,26 +100,41 @@ export function useStore() {
     initialState,
   );
 
-  // ---- Session init ----
+  // ---- Session init with Clerk ----
   useEffect(() => {
     let isMounted = true;
 
-    const handleUser = async (user: { id: string; email?: string } | null) => {
-      if (!user || !isMounted) {
-        if (isMounted) setIsAuthInitializing(false);
+    const handleClerkUser = async () => {
+      if (!isLoaded || !isMounted) return;
+
+      if (!isSignedIn || !clerkUser) {
+        if (isMounted) {
+          setState(initialState);
+          setIsAuthInitializing(false);
+        }
         return;
       }
+
       try {
-        let profile = await fetchUserProfile(user.id);
+        setIsAuthInitializing(true);
+        
+        // Busca ou cria perfil no Supabase usando o ID do Clerk
+        let profile = await fetchUserProfile(clerkUser.id);
+        
         if (!profile) {
-          // Cria perfil se não existir (ex: primeiro login Google)
+          // Cria perfil se não existir
+          const companyName = clerkUser.unsafeMetadata?.companyName as string || '';
+          const plan = clerkUser.unsafeMetadata?.plan as string || 'free';
+          
           profile = await createUserProfile({
-            id: user.id,
-            email: user.email,
-            name: (user as any).user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário',
-            company_name: '',
+            id: clerkUser.id,
+            email: clerkUser.primaryEmailAddress?.emailAddress || '',
+            name: clerkUser.fullName || clerkUser.firstName || 'Usuário',
+            company_name: companyName,
+            plan: plan,
           } as any);
         }
+
         if (profile && isMounted) {
           const userWithCamel = snakeToCamel(profile);
           setState(prev => ({
@@ -128,41 +142,22 @@ export function useStore() {
             user: userWithCamel,
             isAuthenticated: true,
           }));
-          await jobs.loadJobs(user.id);
+          await jobs.loadJobs(clerkUser.id);
         }
       } catch (err) {
-        console.error('Failed to load user profile:', err);
+        console.error('Failed to load/create user profile:', err);
       } finally {
         if (isMounted) setIsAuthInitializing(false);
       }
     };
 
-    // Ouvir mudanças de sessão em tempo real (cobre OAuth callback)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setIsAuthInitializing(true);
-        await handleUser(session?.user ?? null);
-        if (session && window.location.pathname === '/auth/callback') {
-          navigate('/dashboard');
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setState(initialState);
-        setIsAuthInitializing(false);
-      }
-    });
-
-    // Inicialização inicial
-    getCurrentUser().then(user => handleUser(user)).catch(() => {
-      if (isMounted) setIsAuthInitializing(false);
-    });
+    handleClerkUser();
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoaded, isSignedIn, clerkUser?.id]);
 
   // ---- Navigation (backward-compatible) ----
   const navigateTo = useCallback((view: ViewType) => {

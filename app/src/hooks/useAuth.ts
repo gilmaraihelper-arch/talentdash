@@ -1,17 +1,12 @@
 /**
- * useAuth — Authentication domain hook
+ * useAuth — Authentication domain hook with Clerk integration
  * Handles: login, register, logout, googleLogin, updateUserProfile, changePlan
  */
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSignIn, useSignUp, useUser } from '@clerk/clerk-react';
 import type { AppState, PlanType, User } from '@/types';
-import {
-  supabase,
-  signInWithEmail,
-  signUpWithEmail,
-  signInWithGoogle,
-  signOut,
-} from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 type SetState = React.Dispatch<React.SetStateAction<AppState>>;
 type SetLoading = React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,22 +42,29 @@ export function useAuth(
   initialState: AppState,
 ) {
   const navigate = useNavigate();
+  const { signIn } = useSignIn();
+  const { signUp } = useSignUp();
+  const { user: clerkUser } = useUser();
 
   const login = useCallback(async (email: string, password: string) => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Faz login - o onAuthStateChange no useStore vai detectar e carregar o perfil automaticamente
-      const { user } = await signInWithEmail(email, password);
-      if (!user) throw new Error('Erro ao fazer login');
+      if (!signIn) throw new Error('Clerk não inicializado');
 
-      // Não precisamos mais buscar perfil manualmente - onAuthStateChange faz isso
-      // Mas esperamos um pouco para garantir que o perfil foi carregado antes de navegar
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      navigate('/dashboard');
-      return user;
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === 'complete') {
+        // Login sucesso - o useStore vai detectar via Clerk hooks
+        navigate('/dashboard');
+        return result.createdSessionId;
+      } else {
+        throw new Error('Login incompleto');
+      }
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao fazer login';
       setError(message);
@@ -70,7 +72,7 @@ export function useAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, setError, setIsLoading]);
+  }, [navigate, setError, setIsLoading, signIn]);
 
   const register = useCallback(async (data: {
     name: string;
@@ -83,16 +85,27 @@ export function useAuth(
       setIsLoading(true);
       setError(null);
 
-      // Cria conta - o onAuthStateChange no useStore vai detectar e carregar o perfil automaticamente
-      const { user } = await signUpWithEmail(data.email, data.password, data.name, data.companyName);
-      if (!user) throw new Error('Erro ao criar conta');
+      if (!signUp) throw new Error('Clerk não inicializado');
 
-      // O perfil será criado pelo onAuthStateChange (que chama createUserProfile se não existir)
-      // Apenasaguarda um pouco para garantir que o fluxo foi completado
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      navigate('/dashboard');
-      return user;
+      const result = await signUp.create({
+        emailAddress: data.email,
+        password: data.password,
+        firstName: data.name.split(' ')[0],
+        lastName: data.name.split(' ').slice(1).join(' ') || '',
+        unsafeMetadata: {
+          companyName: data.companyName,
+          plan: data.plan || 'free',
+        },
+      });
+
+      if (result.status === 'complete') {
+        // Registro sucesso - o useStore vai detectar e criar perfil no Supabase
+        navigate('/dashboard');
+        return result.createdSessionId;
+      } else {
+        // Pode precisar de verificação de email
+        throw new Error('Registro incompleto - verifique seu email');
+      }
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao criar conta';
       if (message.includes('already exists') || message.includes('já cadastrado')) {
@@ -104,11 +117,12 @@ export function useAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, setError, setIsLoading]);
+  }, [navigate, setError, setIsLoading, signUp]);
 
   const logout = useCallback(async () => {
     try {
-      await signOut();
+      // Clerk logout via window.Clerk (global)
+      await window.Clerk?.signOut();
       setState(initialState);
       navigate('/');
     } catch {
@@ -117,18 +131,11 @@ export function useAuth(
     }
   }, [initialState, navigate, setState]);
 
-  const googleLogin = useCallback(async (_accessToken: string, _userInfo?: unknown) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await signInWithGoogle();
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Erro ao fazer login com Google');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setError, setIsLoading]);
+  const googleLogin = useCallback(async (_accessToken?: string, _userInfo?: unknown) => {
+    // Google OAuth é gerenciado pelo SignInButton do Clerk
+    // Esta função é mantida para compatibilidade mas não faz nada
+    return Promise.resolve();
+  }, []);
 
   const updateUserProfile = useCallback(async (updates: Partial<User>) => {
     try {

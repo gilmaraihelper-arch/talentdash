@@ -141,15 +141,8 @@ export function LoginPage({ store }: LoginPageProps) {
               </Alert>
             )}
             
-            {/* Google Login - usa OAuth redirect do Supabase (mesmo fluxo do registro) */}
+            {/* Google Login - usa OAuth do Clerk */}
             <GoogleLoginButton
-              onSuccess={async (_accessToken, _userInfo) => {
-                try {
-                  await googleLogin(_accessToken, _userInfo);
-                } catch (error: any) {
-                  setLoginError('Erro ao fazer login com Google: ' + error.message);
-                }
-              }}
               onError={(error) => {
                 setLoginError('Erro ao fazer login com Google: ' + error.message);
               }}

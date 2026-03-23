@@ -238,20 +238,6 @@ export function RegisterPage({ store }: RegisterPageProps) {
             
             {/* Google Login - Primeiro */}
             <GoogleLoginButton
-              onSuccess={async (accessToken, userInfo) => {
-                try {
-                  // Tentar login com Google
-                  await googleLogin(accessToken, userInfo);
-                  // Se sucesso, o usuário é redirecionado automaticamente
-                } catch (error: any) {
-                  const errorMessage = error?.message || '';
-                  if (errorMessage.includes('já cadastrado') || errorMessage.includes('already exists') || errorMessage.includes('existe')) {
-                    setRegisterError('Esta conta Google já está cadastrada. Clique em "Entrar" abaixo para fazer login.');
-                  } else {
-                    setRegisterError('Erro ao fazer login com Google: ' + errorMessage);
-                  }
-                }
-              }}
               onError={(error) => {
                 setRegisterError('Erro ao fazer login com Google: ' + error.message);
               }}
