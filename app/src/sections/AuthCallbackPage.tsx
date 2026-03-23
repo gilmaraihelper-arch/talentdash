@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase';
 
 /**
  * Página de callback do OAuth (Google, etc.)
- * Aguarda a sessão ser processada pelo Supabase e redireciona pro dashboard.
  * O useStore.initAuth detecta a sessão automaticamente ao montar o App.
+ * Esta página apenas garante redirect rápido após OAuth.
  */
 export function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -13,27 +13,7 @@ export function AuthCallbackPage() {
   useEffect(() => {
     let redirected = false;
 
-    const tryRedirect = async () => {
-      if (redirected) return;
-
-      // Tenta até 10x com intervalo de 500ms
-      for (let i = 0; i < 10; i++) {
-        await new Promise(r => setTimeout(r, 500));
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          redirected = true;
-          navigate('/dashboard', { replace: true });
-          return;
-        }
-      }
-
-      // Não encontrou sessão após 5s — vai pro login
-      if (!redirected) {
-        navigate('/login', { replace: true });
-      }
-    };
-
-    // Escuta mudança de estado imediatamente
+    // Escuta mudança de estado - evento rápido e confiável
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !redirected) {
         redirected = true;
@@ -42,9 +22,26 @@ export function AuthCallbackPage() {
       }
     });
 
-    tryRedirect();
+    // Fallback: se não receber evento em 3s, verifica sessão diretamente
+    const fallbackTimeout = setTimeout(() => {
+      if (!redirected) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && !redirected) {
+            redirected = true;
+            navigate('/dashboard', { replace: true });
+          } else {
+            navigate('/login', { replace: true });
+          }
+        }).catch(() => {
+          navigate('/login', { replace: true });
+        });
+      }
+    }, 3000);
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(fallbackTimeout);
+    };
   }, [navigate]);
 
   return (

@@ -98,7 +98,6 @@ export function useStore() {
     setState,
     setIsLoading,
     setError,
-    jobs.loadJobs,
     initialState,
   );
 

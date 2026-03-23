@@ -64,9 +64,13 @@ export function LoginPage({ store }: LoginPageProps) {
 
   const handleDemoLogin = async () => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    login('demo@talentdash.com', 'demo123');
-    setIsLoading(false);
+    try {
+      await login('demo@talentdash.com', 'demo123');
+    } catch (error) {
+      setLoginError('Erro ao fazer login com conta demo');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -11,8 +11,6 @@ import {
   signUpWithEmail,
   signInWithGoogle,
   signOut,
-  createUserProfile,
-  fetchUserProfile,
 } from '@/lib/supabase';
 
 type SetState = React.Dispatch<React.SetStateAction<AppState>>;
@@ -46,7 +44,6 @@ export function useAuth(
   setState: SetState,
   setIsLoading: SetLoading,
   setError: SetError,
-  loadJobs: (userId: string) => Promise<unknown>,
   initialState: AppState,
 ) {
   const navigate = useNavigate();
@@ -56,24 +53,16 @@ export function useAuth(
       setIsLoading(true);
       setError(null);
 
+      // Faz login - o onAuthStateChange no useStore vai detectar e carregar o perfil automaticamente
       const { user } = await signInWithEmail(email, password);
       if (!user) throw new Error('Erro ao fazer login');
 
-      const profile = await fetchUserProfile(user.id);
-      if (!profile) throw new Error('Perfil não encontrado');
-
-      const userWithCamel = snakeToCamel(profile);
-
-      setState(prev => ({
-        ...prev,
-        user: userWithCamel,
-        isAuthenticated: true,
-        currentView: 'user-dashboard',
-      }));
-
-      await loadJobs(user.id);
+      // Não precisamos mais buscar perfil manualmente - onAuthStateChange faz isso
+      // Mas esperamos um pouco para garantir que o perfil foi carregado antes de navegar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       navigate('/dashboard');
-      return userWithCamel;
+      return user;
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao fazer login';
       setError(message);
@@ -81,7 +70,7 @@ export function useAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [loadJobs, navigate, setError, setIsLoading, setState]);
+  }, [navigate, setError, setIsLoading]);
 
   const register = useCallback(async (data: {
     name: string;
@@ -94,34 +83,16 @@ export function useAuth(
       setIsLoading(true);
       setError(null);
 
+      // Cria conta - o onAuthStateChange no useStore vai detectar e carregar o perfil automaticamente
       const { user } = await signUpWithEmail(data.email, data.password, data.name, data.companyName);
       if (!user) throw new Error('Erro ao criar conta');
 
-      const userProfile = await createUserProfile({
-        id: user.id,
-        email: data.email,
-        name: data.name,
-        company_name: data.companyName || '',
-      } as Partial<User>);
-
-      const userWithCamel = snakeToCamel(userProfile);
-
-      setState(prev => ({
-        ...prev,
-        user: userWithCamel,
-        isAuthenticated: true,
-        currentView: 'user-dashboard',
-      }));
-
-      // onAuthStateChange no useStore já vai detectar o SIGNED_IN e navegar para /dashboard
-      // mas garantimos aqui também caso não dispare
-      setTimeout(() => {
-        if (window.location.pathname !== '/dashboard') {
-          navigate('/dashboard');
-        }
-      }, 1000);
-
-      return userWithCamel;
+      // O perfil será criado pelo onAuthStateChange (que chama createUserProfile se não existir)
+      // Apenasaguarda um pouco para garantir que o fluxo foi completado
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      navigate('/dashboard');
+      return user;
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao criar conta';
       if (message.includes('already exists') || message.includes('já cadastrado')) {
@@ -133,7 +104,7 @@ export function useAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, setError, setIsLoading, setState]);
+  }, [navigate, setError, setIsLoading]);
 
   const logout = useCallback(async () => {
     try {
