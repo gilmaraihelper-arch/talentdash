@@ -20,6 +20,7 @@ const LandingPage = lazy(() => import('@/sections/LandingPage').then(m => ({ def
 const LoginPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/LoginPage').then(m => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/RegisterPage').then(m => ({ default: m.RegisterPage })));
 const AuthCallbackPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/AuthCallbackPage').then(m => ({ default: m.AuthCallbackPage })));
+const SsoCallbackPage = lazy(() => import(/* webpackChunkName: "auth" */ '@/sections/AuthCallbackPage').then(m => ({ default: m.SsoCallbackPage })));
 
 // DASHBOARD CHUNK - Área logada pesada
 const UserDashboardPage = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/sections/UserDashboardPage').then(m => ({ default: m.UserDashboardPage })));
@@ -83,8 +84,8 @@ function App() {
 
         {/* Auth callback - OAuth providers redirect here */}
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
-        {/* Clerk SSO callback - Google OAuth redirects here */}
-        <Route path="/sso-callback" element={<AuthCallbackPage />} />
+        {/* Clerk SSO callback - processa token OAuth e aguarda sessão */}
+        <Route path="/sso-callback" element={<SsoCallbackPage />} />
 
         {/* Protected dashboard routes */}
         <Route

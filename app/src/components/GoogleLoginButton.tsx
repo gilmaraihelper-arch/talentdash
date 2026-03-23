@@ -19,7 +19,7 @@ export function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
         redirectUrl: `${window.location.origin}/sso-callback`,
-        redirectUrlComplete: `${window.location.origin}/dashboard`,
+        redirectUrlComplete: `${window.location.origin}/sso-callback`,
       });
     } catch (err: any) {
       console.error('Google login error:', err);
