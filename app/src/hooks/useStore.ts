@@ -135,17 +135,51 @@ export function useStore() {
           } as any);
         }
 
-        if (profile && isMounted) {
-          const userWithCamel = snakeToCamel(profile);
+        if (isMounted) {
+          // Se conseguiu perfil, usa ele. Se não, cria um perfil mínimo com dados do Clerk
+          const userWithCamel = profile
+            ? snakeToCamel(profile)
+            : {
+                id: clerkUser.id,
+                email: clerkUser.primaryEmailAddress?.emailAddress || '',
+                name: clerkUser.fullName || clerkUser.firstName || 'Usuário',
+                companyName: '',
+                plan: 'free' as any,
+                role: 'USER' as any,
+                paymentMethods: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              } as any;
           setState(prev => ({
             ...prev,
             user: userWithCamel,
             isAuthenticated: true,
           }));
-          await jobs.loadJobs(clerkUser.id);
+          if (profile) {
+            await jobs.loadJobs(clerkUser.id);
+          }
         }
       } catch (err) {
         console.error('Failed to load/create user profile:', err);
+        // Mesmo com erro no Supabase, permite entrar com dados básicos do Clerk
+        if (isMounted && clerkUser) {
+          const fallbackUser = {
+            id: clerkUser.id,
+            email: clerkUser.primaryEmailAddress?.emailAddress || '',
+            name: clerkUser.fullName || clerkUser.firstName || 'Usuário',
+            companyName: '',
+            plan: 'free' as any,
+            role: 'USER' as any,
+            paymentMethods: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as any;
+          setState(prev => ({
+            ...prev,
+            user: fallbackUser,
+            isAuthenticated: true,
+          }));
+        }
       } finally {
         if (isMounted) setIsAuthInitializing(false);
       }

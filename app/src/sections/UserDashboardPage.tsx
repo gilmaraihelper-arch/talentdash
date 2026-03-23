@@ -149,7 +149,18 @@ export function UserDashboardPage({ store }: UserDashboardPageProps) {
     };
   };
 
+  // Enquanto carrega o perfil do Supabase, mostra spinner em vez de redirecionar
   if (!user) {
+    if (store.isAuthInitializing) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-slate-600">Carregando...</p>
+          </div>
+        </div>
+      );
+    }
     navigateTo('login');
     return null;
   }
