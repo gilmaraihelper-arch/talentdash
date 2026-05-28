@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { syncLoginWithClerk } from '@/lib/clerkSync';
 
 // API URL para fallback
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'https://backend-five-sigma-73.vercel.app';
 
 type SetState = React.Dispatch<React.SetStateAction<AppState>>;
 type SetLoading = React.Dispatch<React.SetStateAction<boolean>>;
