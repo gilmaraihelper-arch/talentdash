@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSignIn, useSignUp, useUser } from '@clerk/clerk-react';
 import type { AppState, PlanType, User } from '@/types';
 import { supabase } from '@/lib/supabase';
+import { syncLoginWithClerk } from '@/lib/clerkSync';
+
+// API URL para fallback
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 type SetState = React.Dispatch<React.SetStateAction<AppState>>;
 type SetLoading = React.Dispatch<React.SetStateAction<boolean>>;
@@ -57,43 +61,73 @@ export function useAuth(
         return;
       }
 
-      if (!signIn) throw new Error('Clerk não inicializado');
+      // Tentar login via Clerk primeiro
+      if (signIn) {
+        try {
+          const result = await signIn.create({
+            identifier: email,
+            password,
+          });
 
-      const result = await signIn.create({
-        identifier: email,
-        password,
+          if (result.status === 'complete') {
+            navigate('/dashboard');
+            return result.createdSessionId;
+          }
+        } catch (clerkErr: any) {
+          // Se o usuário não existe no Clerk, tentar login tradicional
+          if (clerkErr.errors?.[0]?.code === 'form_identifier_not_found') {
+            console.log('[Auth] Usuário não encontrado no Clerk, tentando API tradicional...');
+          } else {
+            throw clerkErr;
+          }
+        }
+      }
+
+      // Fallback: Login tradicional via API
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result.status === 'complete') {
-        // Login sucesso - o useStore vai detectar via Clerk hooks
-        navigate('/dashboard');
-        return result.createdSessionId;
-      } else {
-        throw new Error('Login incompleto');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer login');
       }
+
+      // Salvar token no localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Sincronizar com Clerk
+      const syncResult = await syncLoginWithClerk(email, password, {
+        id: data.user.id,
+        name: data.user.name,
+        companyName: data.user.companyName,
+        plan: data.user.plan,
+      });
+
+      if (!syncResult.success) {
+        console.warn('[Auth] Falha ao sincronizar com Clerk:', syncResult.error);
+        // Mesmo sem Clerk, definir estado manualmente
+        setState(prev => ({
+          ...prev,
+          user: data.user,
+          isAuthenticated: true,
+        }));
+      }
+
+      navigate('/dashboard');
+      return data.token;
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao fazer login';
-      const clerkErrors = (err as any)?.errors;
-      const clerkCode = clerkErrors?.[0]?.code || '';
-      
-      // Se já está logado (qualquer variação do erro), vai pro dashboard
-      if (
-        message.toLowerCase().includes('already signed in') ||
-        message.toLowerCase().includes('já está logado') ||
-        message.toLowerCase().includes('single_session_mode') ||
-        clerkCode.includes('session_exists') ||
-        clerkCode.includes('already_signed_in') ||
-        clerkCode.includes('single_session')
-      ) {
-        navigate('/dashboard', { replace: true });
-        return;
-      }
       setError(message);
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, setError, setIsLoading, signIn]);
+  }, [navigate, setError, setIsLoading, signIn, setState]);
 
   const register = useCallback(async (data: {
     name: string;
@@ -143,7 +177,9 @@ export function useAuth(
   const logout = useCallback(async () => {
     try {
       // Clerk logout via window.Clerk (global)
-      await window.Clerk?.signOut();
+      if (window.Clerk?.signOut) {
+        await window.Clerk.signOut();
+      }
       setState(initialState);
       navigate('/');
     } catch {
