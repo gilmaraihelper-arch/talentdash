@@ -15,7 +15,7 @@
  */
 import type { User, Job, Candidate, PaymentMethod } from '@/types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://backend-five-sigma-73.vercel.app';
 
 // Interface para erros de API
 interface ApiError {
