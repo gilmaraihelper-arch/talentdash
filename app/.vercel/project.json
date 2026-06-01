@@ -1,1 +1,16 @@
-{"projectId":"prj_2dAmpRQkt8TOCRC96lY0lsojHSz8","orgId":"team_kZvEyWIuMJPTw4bmnu6jvaTc","projectName":"app"}
+{
+  "projectId": "prj_2dAmpRQkt8TOCRC96lY0lsojHSz8",
+  "orgId": "team_kZvEyWIuMJPTw4bmnu6jvaTc",
+  "projectName": "app",
+  "settings": {
+    "createdAt": 1773796893934,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

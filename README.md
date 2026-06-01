@@ -77,3 +77,6 @@ MVP Visual - Produto em desenvolvimento
 ---
 
 **taldash** - Visualize candidatos. Tome decisões. 🎯
+
+*Última atualização: 2026-05-30*
+*QA Engineer: Carol (Revisão docs - 30/05/2026)*
