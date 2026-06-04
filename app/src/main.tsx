@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <ClerkProvider 
         publishableKey={PUBLISHABLE_KEY}
-        fallbackRedirectUrl="/dashboard"
+        signInFallbackRedirectUrl="/dashboard"
         signUpFallbackRedirectUrl="/dashboard"
       >
         <BrowserRouter>
