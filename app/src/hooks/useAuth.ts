@@ -64,14 +64,22 @@ export function useAuth(
       // Tentar login via Clerk primeiro
       if (signIn) {
         try {
-          const result = await signIn.create({
+          // Step 1: Create sign in with identifier
+          const signInAttempt = await signIn.create({
             identifier: email,
-            password,
           });
-
-          if (result.status === 'complete') {
-            navigate('/dashboard');
-            return result.createdSessionId;
+          
+          // Step 2: Attempt first factor (password)
+          if (signInAttempt.status === 'needs_first_factor') {
+            const result = await signInAttempt.attemptFirstFactor({
+              strategy: 'password',
+              password,
+            });
+            
+            if (result.status === 'complete') {
+              navigate('/dashboard');
+              return result.createdSessionId;
+            }
           }
         } catch (clerkErr: any) {
           // Se o usuário não existe no Clerk, tentar login tradicional
