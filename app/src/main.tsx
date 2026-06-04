@@ -18,11 +18,8 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <ClerkProvider 
         publishableKey={PUBLISHABLE_KEY}
-        signInUrl="/login"
-        signUpUrl="/register"
-        afterSignInUrl="/dashboard"
-        afterSignUpUrl="/dashboard"
-        clerkJSVariant="headless"
+        fallbackRedirectUrl="/dashboard"
+        signUpFallbackRedirectUrl="/dashboard"
       >
         <BrowserRouter>
           <App />
