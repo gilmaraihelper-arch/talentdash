@@ -64,26 +64,24 @@ export function useAuth(
       // Tentar login via Clerk primeiro
       if (signIn) {
         try {
-          // Step 1: Create sign in with identifier
-          const signInAttempt = await signIn.create({
+          // Usar o método create do Clerk com identifier e password
+          const result = await signIn.create({
             identifier: email,
+            password,
           });
           
-          // Step 2: Attempt first factor (password)
-          if (signInAttempt.status === 'needs_first_factor') {
-            const result = await signInAttempt.attemptFirstFactor({
-              strategy: 'password',
-              password,
-            });
-            
-            if (result.status === 'complete') {
-              navigate('/dashboard');
-              return result.createdSessionId;
+          if (result.status === 'complete') {
+            // Criar sessão ativa
+            if (result.createdSessionId) {
+              await window.Clerk?.setActive?.({ session: result.createdSessionId });
             }
+            navigate('/dashboard');
+            return result.createdSessionId;
           }
         } catch (clerkErr: any) {
           // Se o usuário não existe no Clerk, tentar login tradicional
-          if (clerkErr.errors?.[0]?.code === 'form_identifier_not_found') {
+          if (clerkErr.errors?.[0]?.code === 'form_identifier_not_found' || 
+              clerkErr.code === 'form_identifier_not_found') {
             console.log('[Auth] Usuário não encontrado no Clerk, tentando API tradicional...');
           } else {
             throw clerkErr;
