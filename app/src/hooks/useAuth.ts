@@ -61,71 +61,70 @@ export function useAuth(
         return;
       }
 
-      // Tentar login via Clerk primeiro
-      if (signIn) {
-        try {
-          // Usar o método create do Clerk com identifier e password
-          const result = await signIn.create({
-            identifier: email,
-            password,
-          });
-          
-          if (result.status === 'complete') {
-            // Criar sessão ativa
-            if (result.createdSessionId) {
-              await window.Clerk?.setActive?.({ session: result.createdSessionId });
+      // ⚠️ CORREÇÃO: Primeiro tentar login via API tradicional
+      // O Clerk pode estar com problema de configuração
+      try {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Login API bem-sucedido
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          // Tentar sincronizar com Clerk (não bloquear se falhar)
+          try {
+            const syncResult = await syncLoginWithClerk(email, password, {
+              id: data.user.id,
+              name: data.user.name,
+              companyName: data.user.companyName,
+              plan: data.user.plan,
+            });
+
+            if (!syncResult.success) {
+              console.warn('[Auth] Falha ao sincronizar com Clerk:', syncResult.error);
             }
-            navigate('/dashboard');
-            return result.createdSessionId;
+          } catch (syncErr) {
+            console.warn('[Auth] Erro ao sincronizar com Clerk:', syncErr);
           }
-        } catch (clerkErr: any) {
-          // Se o usuário não existe no Clerk, tentar login tradicional
-          if (clerkErr.errors?.[0]?.code === 'form_identifier_not_found' || 
-              clerkErr.code === 'form_identifier_not_found') {
-            console.log('[Auth] Usuário não encontrado no Clerk, tentando API tradicional...');
-          } else {
-            throw clerkErr;
+
+          // Definir estado autenticado mesmo sem Clerk
+          setState(prev => ({
+            ...prev,
+            user: data.user,
+            isAuthenticated: true,
+          }));
+
+          navigate('/dashboard');
+          return data.token;
+        }
+        
+        // Se API retornou erro de credenciais
+        throw new Error(data.error || 'E-mail ou senha incorretos');
+      } catch (apiErr: any) {
+        // Se API falhou, tentar Clerk como fallback
+        console.log('[Auth] API falhou, tentando Clerk:', apiErr.message);
+        
+        if (!signIn) throw new Error('Serviço de autenticação indisponível');
+
+        const result = await signIn.create({
+          identifier: email,
+          password,
+        });
+        
+        if (result.status === 'complete') {
+          if (result.createdSessionId) {
+            await window.Clerk?.setActive?.({ session: result.createdSessionId });
           }
+          navigate('/dashboard');
+          return result.createdSessionId;
         }
       }
-
-      // Fallback: Login tradicional via API
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer login');
-      }
-
-      // Salvar token no localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Sincronizar com Clerk
-      const syncResult = await syncLoginWithClerk(email, password, {
-        id: data.user.id,
-        name: data.user.name,
-        companyName: data.user.companyName,
-        plan: data.user.plan,
-      });
-
-      if (!syncResult.success) {
-        console.warn('[Auth] Falha ao sincronizar com Clerk:', syncResult.error);
-        // Mesmo sem Clerk, definir estado manualmente
-        setState(prev => ({
-          ...prev,
-          user: data.user,
-          isAuthenticated: true,
-        }));
-      }
-
-      navigate('/dashboard');
-      return data.token;
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao fazer login';
       setError(message);
@@ -133,7 +132,7 @@ export function useAuth(
     } finally {
       setIsLoading(false);
     }
-  }, [navigate, setError, setIsLoading, signIn, setState]);
+  }, [navigate, setError, setIsLoading, signIn, setState, isSignedIn]);
 
   const register = useCallback(async (data: {
     name: string;
@@ -146,30 +145,87 @@ export function useAuth(
       setIsLoading(true);
       setError(null);
 
-      if (!signUp) throw new Error('Clerk não inicializado');
+      // ⚠️ CORREÇÃO: Primeiro tentar criar no backend/API tradicional
+      // O Clerk pode estar com problema de configuração ou limitação
+      try {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            companyName: data.companyName,
+            plan: data.plan || 'free',
+          }),
+        });
 
-      const result = await signUp.create({
-        emailAddress: data.email,
-        password: data.password,
-        firstName: data.name.split(' ')[0],
-        lastName: data.name.split(' ').slice(1).join(' ') || '',
-        unsafeMetadata: {
-          companyName: data.companyName,
-          plan: data.plan || 'free',
-        },
-      });
+        const responseData = await response.json();
 
-      if (result.status === 'complete') {
-        // Registro sucesso - o useStore vai detectar e criar perfil no Supabase
-        navigate('/dashboard');
-        return result.createdSessionId;
-      } else {
-        // Pode precisar de verificação de email
-        throw new Error('Registro incompleto - verifique seu email');
+        if (response.ok) {
+          // Registro API bem-sucedido - salvar token e redirecionar
+          if (responseData.token) {
+            localStorage.setItem('token', responseData.token);
+            localStorage.setItem('user', JSON.stringify(responseData.user));
+          }
+          
+          // Tentar sincronizar com Clerk (não bloquear se falhar)
+          try {
+            if (signUp) {
+              await signUp.create({
+                emailAddress: data.email,
+                password: data.password,
+                firstName: data.name.split(' ')[0],
+                lastName: data.name.split(' ').slice(1).join(' ') || '',
+                unsafeMetadata: {
+                  companyName: data.companyName,
+                  plan: data.plan || 'free',
+                },
+              });
+            }
+          } catch (clerkSyncErr) {
+            console.warn('[Auth] Falha ao sincronizar com Clerk (não crítico):', clerkSyncErr);
+          }
+
+          navigate('/dashboard');
+          return responseData;
+        }
+        
+        // Se API retornou erro, verificar se é "já existe"
+        if (responseData.error?.includes('already exists') || 
+            responseData.error?.includes('já cadastrado') ||
+            responseData.error?.includes('já existe')) {
+          throw new Error('E-mail já cadastrado');
+        }
+        
+        throw new Error(responseData.error || 'Erro ao criar conta');
+      } catch (apiErr: any) {
+        // Se API falhou, tentar Clerk direto como fallback
+        console.log('[Auth] API falhou, tentando Clerk:', apiErr.message);
+        
+        if (!signUp) throw new Error('Serviço de autenticação indisponível');
+
+        const result = await signUp.create({
+          emailAddress: data.email,
+          password: data.password,
+          firstName: data.name.split(' ')[0],
+          lastName: data.name.split(' ').slice(1).join(' ') || '',
+          unsafeMetadata: {
+            companyName: data.companyName,
+            plan: data.plan || 'free',
+          },
+        });
+
+        if (result.status === 'complete') {
+          navigate('/dashboard');
+          return result.createdSessionId;
+        } else {
+          throw new Error('Registro incompleto - verifique seu email');
+        }
       }
     } catch (err: unknown) {
       const message = (err as Error).message || 'Erro ao criar conta';
-      if (message.includes('already exists') || message.includes('já cadastrado')) {
+      if (message.includes('already exists') || message.includes('já cadastrado') || message.includes('já existe')) {
         setError('E-mail já cadastrado');
       } else {
         setError(message);
